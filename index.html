@@ -132,9 +132,24 @@
       <p class="best-line progress-line" id="menuProgress" hidden></p>
       <div id="board" aria-label="排行榜"></div>
       <button class="btn" id="btnStart">开始游戏</button>
+      <button class="btn" id="btnVersus" style="background:#6aa8e8;">对战 AI · 奶王 🐸👑</button>
+      <div style="display:flex;gap:8px;justify-content:center;margin-top:8px;">
+        <button class="btn ghost" data-diff="0" style="padding:6px 12px;font-size:12px;">AI·随手</button>
+        <button class="btn ghost" data-diff="1" style="padding:6px 12px;font-size:12px;">AI·老练</button>
+        <button class="btn ghost" data-diff="2" style="padding:6px 12px;font-size:12px;">AI·大师</button>
+      </div>
       <button class="btn ghost" id="btnRestart" hidden>从第 1 关重新开始</button>
       <div id="chain"></div>
       <p class="hint">把奶蛙球全部送进袋口 · 奶蛙神球必须最后进<br>拖拽奶珠拉杆瞄准，松手出杆 · 左下角转盘加塞</p>
+    </div>
+
+    <div class="dialog" id="dlgVs" hidden>
+      <div style="font-size:30px;"><span id="vsIcon">🏆</span></div>
+      <h2 id="vsTitle">胜利！</h2>
+      <p id="vsReason">你把黑 8 送进了袋口</p>
+      <p class="best-line">对战战绩 <span id="vsRecord">0 胜 0 负</span></p>
+      <button class="btn" id="btnVsAgain">再战一局</button>
+      <button class="btn ghost" id="btnVsMenu">回主菜单</button>
     </div>
 
     <div class="dialog" id="dlgPause" hidden>
@@ -302,7 +317,10 @@ function saveProgress() {
 function clearProgress() { PROGRESS = null; try { localStorage.removeItem("milkyPool.progress"); } catch (e) {} }
 
 /* ---------------- 游戏状态 ---------------- */
-const S = { MENU: 0, AIM: 1, ROLL: 2, LEVEL: 3, OVER: 4, PAUSE: 5 };
+const S = { MENU: 0, AIM: 1, ROLL: 2, LEVEL: 3, OVER: 4, PAUSE: 5, VS_END: 6 };
+let mode = "levels";                      // levels 关卡制 | versus 对战制
+let VS = null;                            // 对战状态对象
+let VS_RECORD = (function(){ try { return JSON.parse(localStorage.getItem("milkyPool.vs") || "{\"w\":0,\"l\":0}"); } catch(e){ return {w:0,l:0}; } })();
 let state = S.MENU;
 let balls = [];            // {x,y,vx,vy,i(0-7颜色),sprite,black,potted,sink}
 let cue = null;            // 母球（奶珠）
@@ -312,7 +330,7 @@ let stage = 0;             // 进化形态
 let aim = { dx: 1, dy: 0 };
 let pulling = false, pull = 0;
 let spin = { x: 0, y: 0 }; // 加塞：x 左右, y 上跟下缩
-let shotPotted = 0, firstContact = false;
+let shotPotted = 0, firstContact = false, firstHit = null;   // firstHit：本杆首触的球（对战规则用）
 let shake = 0, fxTime = 0;
 let danmaku = [], floats = [], rescueFrogs = [], rings = [];
 let sinkAnims = [];        // 球落袋动画
@@ -424,11 +442,13 @@ function potBall(b) {
   const p = nearestPocket(b.x, b.y);
   sinkAnims.push({ x: b.x, y: b.y, t: 0, black: b.black, sprite: b.sprite });
   if (b.cue) {
-    shots += 2; streak = 0;
-    spawnDanmaku("母球跳河！+2 杆", true);
+    if (mode !== "versus") shots += 2;
+    streak = 0;
+    spawnDanmaku(mode === "versus" ? "母球跳河！犯规～" : "母球跳河！+2 杆", true);
     spawnDanmaku(SAD[Math.floor(Math.random() * SAD.length)], false);
     SFX.foul();
   } else {
+    if (mode === "versus") vsPotted.push(b);
     rescued++;
     shotPotted++;
     const gain = 100 + (shotPotted - 1) * 60;
@@ -542,6 +562,7 @@ function stepPhysics(dt) {
     // 跟球 / 缩杆：母球第一次接触目标球后附加纵向速度
     if (!firstContact && (a.cue || b.cue)) {
       firstContact = true;
+      firstHit = a.cue ? b : a;
       const c = a.cue ? a : b;
       c.vx += cuePreDir.x * spinYLeft * 250;
       c.vy += cuePreDir.y * spinYLeft * 250;
@@ -583,7 +604,7 @@ function shoot() {
   cuePreDir = { x: aim.dx, y: aim.dy };
   spinYLeft = spin.y;
   cue.vx = aim.dx * speed; cue.vy = aim.dy * speed;
-  shots++; shotPotted = 0; firstContact = false;
+  shots++; shotPotted = 0; firstContact = false; firstHit = null; vsPotted = [];
   pulling = false;
   strikeT = 0.1; strikePull = pull; strikeDir = { x: aim.dx, y: aim.dy };
   pull = 0;
@@ -618,6 +639,19 @@ cvs.addEventListener("pointermove", e => {
 });
 cvs.addEventListener("pointerdown", e => {
   audio();
+  if (mode === "versus") {
+    if (!VS || VS.over || VS.turn !== 1) return;   // AI 回合锁输入
+    if (VS.ballInHand) {
+      const p = canvasPos(e);
+      if (vsFreeSpot(p.x, p.y)) {
+        VS.ballInHand = false;
+        cue.x = p.x; cue.y = p.y; cue.vx = 0; cue.vy = 0; cue.potted = false;
+        SFX.clack(0.2);
+        spawnDanmaku("自由球放置完成", true);
+      } else spawnDanmaku("这里放不下，换个位置", false);
+      return;
+    }
+  }
   if (state !== S.AIM || !cue || cue.potted) return;
   downPt = canvasPos(e);
   downPull = pull;
@@ -689,7 +723,152 @@ function loop(now) {
   requestAnimationFrame(loop);
 }
 
+/* ---------------- 对战 AI 模式（8 球规则，参考 pool2026 幽灵球算法） ---------------- */
+let vsPotted = [];   // 本杆落袋的彩球
+const VS_DIFF = [{ name: "随手", err: 0.085, powMin: 0.5 }, { name: "老练", err: 0.032, powMin: 0.55 }, { name: "大师", err: 0.012, powMin: 0.6 }];
+
+function groupOf(b) { return b.i < 4 ? "A" : "B"; }
+function groupRemain(g) { return balls.filter(b => !b.potted && !b.black && !b.cue && groupOf(b) === g).length; }
+
+function startVersus(diff) {
+  mode = "versus";
+  vsPotted = [];
+  score = 0; shots = 0; stage = 0; streak = 0; rescued = 0;
+  VS = { turn: 1, groups: { 1: null, 2: null }, ballInHand: false, diff: diff || 1, over: false };
+  // 摆 8 球：1-7 号 + 黑 8（黑 8 在第四排右，经典位）
+  balls = [];
+  const fx = FOOT.x, fy = FOOT.y, sp = BALL_R * 2 + 0.6;
+  const tri = [[0, 0], [-0.9, -0.5], [-0.9, 0.5], [-1.8, -1], [-1.8, 0], [-1.8, 1], [-2.7, -0.5], [-2.7, 0.5]];
+  const idx = [0, 1, 2, 3, 4, 5, 6];
+  for (let i = idx.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [idx[i], idx[j]] = [idx[j], idx[i]]; }
+  tri.forEach((t, k) => {
+    if (k === 7) balls.push(mkBall(fx + t[0] * sp, fy + t[1] * sp, 8, true));  // 黑 8
+    else balls.push(mkBall(fx + t[0] * sp, fy + t[1] * sp, idx[k] + 1, false)); // 1-7 号随机
+  });
+  respawnCue(true);
+  state = S.AIM;
+  showDlg(null);
+  spawnDanmaku("对战开始！你先出杆", true);
+  spawnDanmaku("首颗进的彩球决定你的分组", false);
+}
+
+function vsFreeSpot(x, y) {
+  if (x < FELT.x + BALL_R || x > FELT.x + FELT.w - BALL_R || y < FELT.y + BALL_R || y > FELT.y + FELT.h - BALL_R) return false;
+  return freeSpot(balls.filter(b => !b.potted && !b.cue), x, y, BALL_R * 2 + 2);
+}
+
+function vsEnd(playerWin, reason) {
+  if (VS.over) return;
+  VS.over = true;
+  state = S.VS_END;
+  if (playerWin) VS_RECORD.w++; else VS_RECORD.l++;
+  try { localStorage.setItem("milkyPool.vs", JSON.stringify(VS_RECORD)); } catch (e) {}
+  $("vsIcon").textContent = playerWin ? "🏆" : "🐸💤";
+  $("vsTitle").textContent = playerWin ? "胜利！你赢了 AI 奶王" : "惜败…AI 奶王笑了";
+  $("vsReason").textContent = reason;
+  $("vsRecord").textContent = VS_RECORD.w + " 胜 " + VS_RECORD.l + " 负";
+  SFX.win();
+  setTimeout(() => { playerWin ? SFX.laugh() : SFX.foul(); }, 600);
+  showDlg("dlgVs");
+  spawnDanmaku(playerWin ? "蛙哈哈！赢啦！" : "AI 奶王：下次再来～", true);
+}
+
+function resolveVersus() {
+  const me = VS.turn;
+  const myGroup = VS.groups[me];
+  const scratched = cue.potted;
+  const eight = vsPotted.find(b => b.black);
+  const other = me === 1 ? 2 : 1;
+
+  // 黑 8 结算
+  if (eight) {
+    const cleared = myGroup && groupRemain(myGroup) === 0;
+    if (cleared && !scratched) return vsEnd(me === 1, me === 1 ? "你把黑 8 送进了袋口" : "AI 清完组后合法打进黑 8");
+    return vsEnd(me === 2, scratched ? "打进黑 8 时母球落袋" : "还没清完己方球就进了黑 8");
+  }
+
+  // 首颗彩球定组
+  if (!VS.groups[1] && vsPotted.length > 0) {
+    const first = vsPotted[0];
+    VS.groups[me] = groupOf(first);
+    VS.groups[other] = groupOf(first) === "A" ? "B" : "A";
+    spawnDanmaku(me === 1 ? "你的分组：" + (VS.groups[1] === "A" ? "小蛙组 1-4" : "大蛙组 5-7") : "AI 分组：" + (VS.groups[2] === "A" ? "小蛙组 1-4" : "大蛙组 5-7"), true);
+  }
+
+  const mg = VS.groups[me];
+  // 犯规判定：母球落袋 / 空杆 / 首触错组 / 提前打黑 8
+  let foul = "", skip = false;
+  if (scratched) foul = "母球落袋";
+  else if (!firstHit) foul = "空杆没碰到球";
+  else if (mg) {
+    if (firstHit.black && groupRemain(mg) > 0) foul = "还没清完就先打黑 8";
+    else if (groupOf(firstHit) !== mg) foul = "首触了对方的球";
+  } else if (firstHit && firstHit.black) foul = "首触黑 8（未定组）";
+
+  const pottedOwn = mg ? vsPotted.some(b => groupOf(b) === mg) : vsPotted.length > 0;
+  vsPotted = [];
+
+  if (foul) {
+    spawnDanmaku("犯规：" + foul, true);
+    VS.turn = other;
+    VS.ballInHand = true;
+    if (scratched) { cue.potted = false; respawnCue(false); cue.potted = true; /* 先藏起来等放球 */ }
+    if (VS.turn === 1) {
+      spawnDanmaku("你获得自由球：点击台面放母球", false);
+      state = S.AIM;   // 玩家放球状态
+    } else {
+      setTimeout(botTakeTurn, 900);
+    }
+    return;
+  }
+
+  if (!pottedOwn) {
+    VS.turn = other;
+    spawnDanmaku(me === 1 ? "没进球，换 AI 奶王" : "AI 没进，轮到你", false);
+  }
+  if (VS.turn === 2 && !VS.over) setTimeout(botTakeTurn, 800);
+}
+
+function botTakeTurn() {
+  if (mode !== "versus" || !VS || VS.turn !== 2 || VS.over) return;
+  // 自由球：AI 放安全位
+  if (VS.ballInHand) {
+    VS.ballInHand = false;
+    let bx = HEAD.x, by = HEAD.y;
+    if (!vsFreeSpot(bx, by)) { bx = FELT.x + FELT.w * 0.3; by = FELT.y + FELT.h * 0.5; }
+    cue.x = bx; cue.y = by; cue.vx = 0; cue.vy = 0; cue.potted = false;
+    spawnDanmaku("AI 放置了自由球", false);
+  }
+  // 选目标：己方组剩余 → 黑 8
+  const mg = VS.groups[2];
+  let targets = balls.filter(b => !b.potted && !b.black && !b.cue && (!mg || groupOf(b) === mg));
+  if (!targets.length) targets = balls.filter(b => !b.potted && b.black);
+  if (!targets.length) return;
+  const target = targets[Math.floor(Math.random() * targets.length)];
+  // 幽灵球瞄准：目标球到最近袋方向后方 2R
+  let bestP = POCKETS[0], bestD = Infinity;
+  for (const p of POCKETS) { const d = dist(target.x, target.y, p.x, p.y); if (d < bestD) { bestD = d; bestP = p; } }
+  const gx = target.x + (target.x - bestP.x) / (bestD || 1) * BALL_R * 2;
+  const gy = target.y + (target.y - bestP.y) / (bestD || 1) * BALL_R * 2;
+  const cfg = VS_DIFF[VS.diff] || VS_DIFF[1];
+  const ang = Math.atan2(gy - cue.y, gx - cue.x) + rand(-cfg.err, cfg.err);
+  // 演出：瞄准 → 蓄力 → 出杆
+  state = S.AIM;
+  aim.dx = Math.cos(ang); aim.dy = Math.sin(ang);
+  pull = 0;
+  spawnDanmaku("AI 奶王瞄准中…", false);
+  setTimeout(() => {
+    if (mode !== "versus" || !VS || VS.turn !== 2 || VS.over) return;
+    pull = 190 * Math.min(1, cfg.powMin + Math.random() * 0.35);
+    setTimeout(() => {
+      if (mode !== "versus" || !VS || VS.turn !== 2 || VS.over) return;
+      shoot();
+    }, 420);
+  }, 700);
+}
+
 function endShot() {
+  if (mode === "versus") { resolveVersus(); return; }
   if (cue.potted) { respawnCue(false); }
   if (shotPotted === 0) streak = 0; else streak++;
   // 清台判定
@@ -802,14 +981,29 @@ function drawHUD() {
   ctx.textAlign = "left";
   ctx.fillStyle = "#8a7350";
   ctx.font = "700 17px 'PingFang SC','Microsoft YaHei',sans-serif";
-  ctx.fillText("得分 " + score, 20, 34);
-  ctx.font = "600 13px 'PingFang SC','Microsoft YaHei',sans-serif";
-  ctx.fillStyle = "#b09a6e";
-  ctx.fillText("第 " + level + " 关" + (endless ? "（无尽）" : "") + " · 杆数 " + shots + "/" + par + " · 剩余 " + balls.filter(b => !b.potted).length, 20, 56);
-  // 进化形态图标
-  if (drawSprite(FROG_IMGS[stage], 176, 30, 34)) {
-    ctx.font = "600 11px sans-serif"; ctx.fillStyle = "#c4b190";
-    ctx.fillText(FROG_NAMES[stage], 176, 56);
+  if (mode === "versus" && VS) {
+    // 对战模式 HUD：轮次 + 分组
+    const g1 = VS.groups[1], g2 = VS.groups[2];
+    const name1 = "你（" + (g1 ? (g1 === "A" ? "小蛙组 1-4" : "大蛙组 5-7") : "未定组") + "）";
+    const name2 = "AI 奶王（" + (g2 ? (g2 === "A" ? "小蛙组 1-4" : "大蛙组 5-7") : "未定组") + "）";
+    ctx.fillText(VS.turn === 1 ? "轮到你出杆" : "AI 奶王思考中…", 20, 34);
+    ctx.fillStyle = VS.turn === 1 ? "#e8963c" : "#6aa8e8";
+    ctx.font = "600 13px 'PingFang SC','Microsoft YaHei',sans-serif";
+    ctx.fillText(VS.turn === 1 ? name1 : name2, 20, 56);
+    const left1 = VS.groups[1] ? groupRemain(VS.groups[1]) : 4, left2 = VS.groups[2] ? groupRemain(VS.groups[2]) : 4;
+    ctx.textAlign = "right";
+    ctx.fillStyle = "#8a7350";
+    ctx.fillText("你剩 " + left1 + " · AI 剩 " + left2, W - 20, 34);
+  } else {
+    ctx.fillText("得分 " + score, 20, 34);
+    ctx.font = "600 13px 'PingFang SC','Microsoft YaHei',sans-serif";
+    ctx.fillStyle = "#b09a6e";
+    ctx.fillText("第 " + level + " 关" + (endless ? "（无尽）" : "") + " · 杆数 " + shots + "/" + par + " · 剩余 " + balls.filter(b => !b.potted).length, 20, 56);
+    // 进化形态图标
+    if (drawSprite(FROG_IMGS[stage], 176, 30, 34)) {
+      ctx.font = "600 11px sans-serif"; ctx.fillStyle = "#c4b190";
+      ctx.fillText(FROG_NAMES[stage], 176, 56);
+    }
   }
   // 加塞指示
   if (spin.x !== 0 || spin.y !== 0) {
@@ -818,7 +1012,7 @@ function drawHUD() {
     ctx.font = "600 12px sans-serif";
     const parts = [];
     if (spin.y > 0.2) parts.push("跟球");
-    if (spin.y < -0.2) parts.push("缩杆");
+  if (spin.y < -0.2) parts.push("缩杆");
     if (spin.x > 0.2) parts.push("右塞");
     if (spin.x < -0.2) parts.push("左塞");
     ctx.fillText("加塞: " + parts.join("+"), W - 60, 34);
@@ -1059,8 +1253,15 @@ $("btnStart").onclick = () => {
   state = S.AIM; showDlg(null);
 };
 $("btnRestart").onclick = () => { audio(); beep(520, 0.07, "sine", 0.1); clearProgress(); score = 0; stage = 0; startLevel(1); state = S.AIM; showDlg(null); };
+$("btnVersus").onclick = () => { audio(); beep(660, 0.07, "sine", 0.1); startVersus(1); };
+document.querySelectorAll("[data-diff]").forEach(b => {
+  b.onclick = () => { audio(); beep(520, 0.07, "sine", 0.1); startVersus(+b.dataset.diff); };
+});
+$("btnVsAgain").onclick = () => { audio(); beep(660, 0.07, "sine", 0.1); startVersus(VS ? VS.diff : 1); };
+$("btnVsMenu").onclick = () => { audio(); beep(520, 0.07, "sine", 0.1); mode = "levels"; VS = null; state = S.MENU; showDlg("dlgMenu"); };
 $("btnNext").onclick = () => { audio(); beep(660, 0.07, "sine", 0.1); startLevel(level + 1); state = S.AIM; showDlg(null); };
 $("pauseBtn").onclick = () => {
+  if (mode === "versus") return;   // 对战模式不支持暂停（防 AI 回合卡死）
   if (state !== S.AIM && state !== S.ROLL) return;
   $("pauseShots").textContent = shots; $("pauseScore").textContent = score;
   state = S.PAUSE; showDlg("dlgPause");
