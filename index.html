@@ -467,7 +467,8 @@ function nearestPocket(x, y) {
 function stepPhysics(dt) {
   const live = balls.filter(b => !b.potted).concat(cue && !cue.potted ? [cue] : []);
   for (const b of live) {
-    if (b.vx === 0 && b.vy === 0) continue;
+    // 静止球跳过物理，但袋口喉部的静止悬停球除外（需吸力拉入）
+    if (b.vx === 0 && b.vy === 0 && !nearPocketMouth(b.x, b.y)) continue;
     // 摩擦
     const sp = Math.hypot(b.vx, b.vy);
     const k = Math.exp(-FRICTION_K * dt);
@@ -483,9 +484,20 @@ function stepPhysics(dt) {
     const mv = Math.hypot(b.vx, b.vy);
     if (mv > 1) b.rot = (b.rot || 0) + mv * dt / BALL_R * 0.55 * (b.vx >= 0 ? 1 : -1);
 
-    // 袋口捕获
+    // 袋口捕获：快速球进核心区直接落；慢速球进袋口圈也落（防"吊袋"悬停）
+    const vNow = Math.hypot(b.vx, b.vy);   // 摩擦/STOP_V 归零后的真实速度
     for (const p of POCKETS) {
-      if (dist(b.x, b.y, p.x, p.y) < POCKET_R - 4) { potBall(b); break; }
+      const dd = dist(b.x, b.y, p.x, p.y);
+      if (dd < POCKET_R - 4 || (dd < POCKET_R && vNow < 90)) { potBall(b); break; }
+      if (dd < POCKET_R + BALL_R * 0.7) {
+        // 喉部吸力：运动球改速度导向；近静止悬停球用位置级滑入（绕过 STOP_V 归零，杜绝吊袋卡死）
+        b.vx += (p.x - b.x) / dd * 300 * dt;
+        b.vy += (p.y - b.y) / dd * 300 * dt;
+        if (vNow < STOP_V) {
+          b.x += (p.x - b.x) / dd * 34 * dt;
+          b.y += (p.y - b.y) / dd * 34 * dt;
+        }
+      }
     }
     if (b.potted) continue;
 
