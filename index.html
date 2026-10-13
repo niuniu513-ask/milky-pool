@@ -413,7 +413,7 @@ function respawnCue(fresh) {
 
 /* ---------------- 物理 ---------------- */
 const STOP_V = 9, FRICTION_K = 0.85, FRICTION_LIN = 26, REST_BALL = 0.94, REST_CUSH = 0.78;
-let cuePreDir = { x: 1, y: 0 }, spinYLeft = 0;
+let cuePreDir = { x: 1, y: 0 }, spinYLeft = 0, downPt = { x: 0, y: 0 }, downPull = 0, strikeT = 0, strikePull = 0, strikeDir = { x: 1, y: 0 };
 
 function nearPocketMouth(x, y) {
   for (const p of POCKETS) if (dist(x, y, p.x, p.y) < POCKET_R + BALL_R * 0.8) return true;
@@ -479,6 +479,9 @@ function stepPhysics(dt) {
       else { const f = (sp2 - drop) / sp2; b.vx *= f; b.vy *= f; }
     }
     b.x += b.vx * dt; b.y += b.vy * dt;
+    // 滚动感：团子随位移打转（速度越快转越快）
+    const mv = Math.hypot(b.vx, b.vy);
+    if (mv > 1) b.rot = (b.rot || 0) + mv * dt / BALL_R * 0.55 * (b.vx >= 0 ? 1 : -1);
 
     // 袋口捕获
     for (const p of POCKETS) {
@@ -569,7 +572,9 @@ function shoot() {
   spinYLeft = spin.y;
   cue.vx = aim.dx * speed; cue.vy = aim.dy * speed;
   shots++; shotPotted = 0; firstContact = false;
-  pulling = false; pull = 0;
+  pulling = false;
+  strikeT = 0.1; strikePull = pull; strikeDir = { x: aim.dx, y: aim.dy };
+  pull = 0;
   state = S.ROLL;
   SFX.shoot();
 }
@@ -583,9 +588,17 @@ cvs.addEventListener("pointermove", e => {
   const p = canvasPos(e);
   if (state !== S.AIM || !cue || cue.potted) return;
   if (pulling) {
-    const d = dist(p.x, p.y, cue.x, cue.y);
-    pull = clamp(d - 14, 0, 190);
-    if (d > 8) { aim.dx = (cue.x - p.x) / d; aim.dy = (cue.y - p.y) / d; }
+    // 蓄力与瞄准解耦：沿已锁定杆向投影算拉距，横移量微调方向（不跳变）
+    const bx = -(aim.dx), by = -(aim.dy);            // 杆向后方向
+    const proj = (p.x - downPt.x) * bx + (p.y - downPt.y) * by;
+    pull = clamp(downPull + proj, 0, 190);
+    const side = (p.x - downPt.x) * (-by) + (p.y - downPt.y) * bx;
+    const sideN = side / 3.2;
+    if (Math.abs(sideN) > 0.5) {
+      const c = Math.cos(sideN / 140), s = Math.sin(sideN / 140);
+      const ndx = aim.dx * c - aim.dy * s, ndy = aim.dx * s + aim.dy * c;
+      aim.dx = ndx; aim.dy = ndy;
+    }
   } else {
     const d = dist(p.x, p.y, cue.x, cue.y);
     if (d > 4) { aim.dx = (p.x - cue.x) / d; aim.dy = (p.y - cue.y) / d; }
@@ -594,15 +607,9 @@ cvs.addEventListener("pointermove", e => {
 cvs.addEventListener("pointerdown", e => {
   audio();
   if (state !== S.AIM || !cue || cue.potted) return;
-  const p = canvasPos(e);
-  const d = dist(p.x, p.y, cue.x, cue.y);
-  if (d > BALL_R * 4) {  // 远处按下也进入拉杆（直接以此方向）
-    pulling = true;
-    pull = clamp(d - 14, 0, 190);
-    aim.dx = (cue.x - p.x) / d; aim.dy = (cue.y - p.y) / d;
-  } else {
-    pulling = true; pull = 0;
-  }
+  downPt = canvasPos(e);
+  downPull = pull;
+  pulling = true;
   cvs.setPointerCapture(e.pointerId);
 });
 cvs.addEventListener("pointerup", () => {
@@ -643,6 +650,7 @@ function loop(now) {
 
   if (state === S.ROLL && allStopped()) endShot();
   if (shake > 0) shake = Math.max(0, shake - dt * 26);
+  if (strikeT > 0) strikeT = Math.max(0, strikeT - dt);
 
   // 动效
   for (let i = danmaku.length - 1; i >= 0; i--) {
@@ -729,7 +737,7 @@ function render() {
   if (cue && !cue.potted) drawCue(cue);
 
   // 出杆
-  if (state === S.AIM && cue && !cue.potted) drawCueStick();
+  if ((state === S.AIM || strikeT > 0) && cue && !cue.potted) drawCueStick();
 
   // 奶波涟漪
   rings.forEach(r => {
@@ -902,8 +910,8 @@ function drawBall(b) {
   ctx.fillStyle = grd;
   ctx.beginPath(); ctx.arc(b.x, b.y, BALL_R, 0, Math.PI * 2); ctx.fill();
   ctx.lineWidth = 1.2; ctx.strokeStyle = "rgba(90,60,20,0.35)"; ctx.stroke();
-  // 奶蛙脸
-  drawSprite(FROG_IMGS[b.black ? 8 : b.sprite], b.x, b.y, BALL_R * (b.black ? 1.55 : 1.5));
+  // 奶蛙脸（滚动时带旋转）
+  drawSprite(FROG_IMGS[b.black ? 8 : b.sprite], b.x, b.y, BALL_R * (b.black ? 1.55 : 1.5), b.rot || 0);
   // 号码
   ctx.fillStyle = "rgba(255,255,255,0.92)";
   ctx.beginPath(); ctx.arc(b.x, b.y + BALL_R * 0.62, 5.4, 0, Math.PI * 2); ctx.fill();
@@ -938,12 +946,20 @@ function drawCue(c) {
   ctx.beginPath(); ctx.arc(c.x - 4.5, c.y - 5.5, 2.4, 0, Math.PI * 2); ctx.fill();
 }
 function drawCueStick() {
-  const back = 14 + pull * 0.55;
-  const bx = cue.x - aim.dx * back, by = cue.y - aim.dy * back;
+  // 出杆击打动画：state=ROLL 且 strikeT>0 时杆快速前推
+  let back, adx = aim.dx, ady = aim.dy, cx = cue.x, cy = cue.y;
+  if (strikeT > 0) {
+    const p = 1 - strikeT / 0.1;
+    back = (14 + strikePull * 0.55) * (1 - p) - 6 * p;
+    adx = strikeDir.x; ady = strikeDir.y;
+  } else {
+    back = 14 + pull * 0.55;
+  }
+  const bx = cx - adx * back, by = cy - ady * back;
   const len = 210;
   ctx.save();
   ctx.translate(bx, by);
-  ctx.rotate(Math.atan2(aim.dy, aim.dx));
+  ctx.rotate(Math.atan2(ady, adx));
   // 杆身
   const g = ctx.createLinearGradient(0, -3, 0, 3);
   g.addColorStop(0, "#f2ddb0"); g.addColorStop(0.5, "#caa06a"); g.addColorStop(1, "#a87a45");
@@ -953,13 +969,20 @@ function drawCueStick() {
   ctx.fillStyle = "#6aa8e8";
   roundRect(-len - 5, -2.6, 6, 5.2, 2); ctx.fill();
   ctx.restore();
-  // 力度条
-  if (pull > 0) {
-    const pw = 120, px = cue.x - pw / 2, py = cue.y + BALL_R + 14;
-    ctx.fillStyle = "rgba(255,253,246,0.9)";
-    roundRect(px, py, pw, 7, 3.5); ctx.fill();
-    ctx.fillStyle = pull > 150 ? "#e8685a" : "#68c488";
-    roundRect(px, py, pw * (pull / 190), 7, 3.5); ctx.fill();
+  // 底部固定力度条（拉动或击打动画期间显示）
+  const showPow = state === S.AIM ? pull : (strikeT > 0 ? strikePull * (strikeT / 0.1) : 0);
+  if (showPow > 0) {
+    const pw = 220, px = W / 2 - pw / 2, py = H - 14;
+    ctx.fillStyle = "rgba(70,50,20,0.25)";
+    roundRect(px - 3, py - 3, pw + 6, 14, 7); ctx.fill();
+    ctx.fillStyle = "rgba(255,253,246,0.95)";
+    roundRect(px, py, pw, 8, 4); ctx.fill();
+    const r = showPow / 190;
+    ctx.fillStyle = r > 0.78 ? "#e8685a" : (r > 0.45 ? "#f2c14e" : "#68c488");
+    roundRect(px, py, pw * r, 8, 4); ctx.fill();
+    ctx.fillStyle = "rgba(90,60,20,0.85)";
+    ctx.font = "700 9px sans-serif"; ctx.textAlign = "center";
+    ctx.fillText("力度 " + Math.round(r * 100) + "%", W / 2, py - 7);
   }
 }
 
