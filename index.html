@@ -139,8 +139,20 @@
         <button class="btn ghost" data-diff="2" style="padding:6px 12px;font-size:12px;">AI·大师</button>
       </div>
       <button class="btn ghost" id="btnRestart" hidden>从第 1 关重新开始</button>
+      <button class="btn" id="btnDonate" style="background:#f7c948;color:#7a4a1d;">打赏作者 🐸💛</button>
       <div id="chain"></div>
       <p class="hint">把奶蛙球全部送进袋口 · 奶蛙神球必须最后进<br>拖拽奶珠拉杆瞄准，松手出杆 · 左下角转盘加塞</p>
+    </div>
+
+    <div class="dialog" id="dlgDonate" hidden>
+      <img src="data:image/webp;base64,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" width="56" alt="奶蛙" style="display:block;margin:0 auto;">
+      <h2>请作者喝杯奶茶 🧋</h2>
+      <p style="color:#a5854e;font-size:13px;line-height:1.8;margin:6px 0 10px;">奶蛙台球由牛哥独立开发，全免费无广告。<br>如果它陪你打发了课间十分钟，可以请作者喝杯奶茶～</p>
+      <div id="donateQrBox" style="width:200px;height:200px;margin:0 auto 10px;border-radius:16px;border:3px dashed #f2c14e;background:#fffdf6;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+        <img id="donateImg" src="donate.png" alt="收款码" style="display:none;width:100%;height:100%;object-fit:contain;">
+        <span id="donateTip" style="color:#c9a86a;font-size:12px;text-align:center;line-height:1.7;padding:10px;">收款码待上架<br>（把收款码图片命名为 donate.png<br>放到游戏同目录即可显示）</span>
+      </div>
+      <button class="btn ghost" id="btnDonateBack">返回菜单</button>
     </div>
 
     <div class="dialog" id="dlgVs" hidden>
@@ -1211,7 +1223,7 @@ function shade(hex, k) {
 
 /* ---------------- 弹窗 & 菜单 ---------------- */
 function showDlg(id) {
-  ["dlgMenu", "dlgPause", "dlgLevel", "dlgOver"].forEach(d => $(d).hidden = (d !== id));
+  ["dlgMenu", "dlgPause", "dlgLevel", "dlgOver", "dlgDonate"].forEach(d => $(d).hidden = (d !== id));
   $("overlay").classList.toggle("hidden", !id);
   const inGame = state === S.AIM || state === S.ROLL;
   $("pauseBtn").classList.toggle("show", !id && inGame);
@@ -1254,6 +1266,13 @@ $("btnStart").onclick = () => {
 };
 $("btnRestart").onclick = () => { audio(); beep(520, 0.07, "sine", 0.1); clearProgress(); score = 0; stage = 0; startLevel(1); state = S.AIM; showDlg(null); };
 $("btnVersus").onclick = () => { audio(); beep(660, 0.07, "sine", 0.1); startVersus(1); };
+$("btnDonate").onclick = () => { audio(); beep(660, 0.07, "sine", 0.1); showDlg("dlgDonate"); };
+$("btnDonateBack").onclick = () => { audio(); beep(520, 0.07, "sine", 0.1); showDlg("dlgMenu"); };
+(function initDonate() {
+  const im = new Image();
+  im.onload = () => { $("donateImg").style.display = "block"; $("donateTip").style.display = "none"; };
+  im.src = "donate.png";
+})();
 document.querySelectorAll("[data-diff]").forEach(b => {
   b.onclick = () => { audio(); beep(520, 0.07, "sine", 0.1); startVersus(+b.dataset.diff); };
 });
