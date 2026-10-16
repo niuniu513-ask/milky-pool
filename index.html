@@ -115,18 +115,6 @@
   #chain img { width: 30px; image-rendering: auto; opacity: 0.92; }
   #chain .arrow { color: #d8c290; font-size: 11px; padding: 0 1px 8px; }
 
-  /* 竖屏旋转提示 */
-  #rot {
-    position: fixed; inset: 0; z-index: 200; display: none;
-    flex-direction: column; align-items: center; justify-content: center; gap: 12px;
-    background: linear-gradient(160deg, #fff8ec, #ffe3c2); color: #8a5a2b; text-align: center;
-  }
-  #rot .phone { font-size: 56px; animation: rotSpin 1.8s ease-in-out infinite; }
-  #rot b { font-size: 20px; }
-  #rot span { color: #b08a5a; font-size: 13px; line-height: 1.7; }
-  @keyframes rotSpin { 0%, 18% { transform: rotate(0); } 55%, 88% { transform: rotate(90deg); } 100% { transform: rotate(90deg); } }
-  @media (orientation: portrait) { #rot { display: flex; } }
-
   /* 矮视口（手机横屏 / 矮窗口）压缩弹窗 */
   @media (max-height: 640px) {
     .dialog { max-height: 94%; padding: 12px 14px; border-radius: 14px; }
@@ -146,16 +134,15 @@
 </style>
 </head>
 <body>
-<div id="rot"><div class="phone">📱</div><b>请横屏游玩</b><span>奶蛙台球是横屏游戏<br>把手机转过来体验最佳 🐸</span></div>
 <div id="wrap">
   <canvas id="cvs"></canvas>
   <button id="pauseBtn">Ⅱ</button>
   <div id="spinPad"><div id="spinDot"></div></div>
   <div id="spinTip">加塞：上=跟球 下=缩杆 · 点中间复位</div>
 
-  <div id="overlay" class="hidden">
+  <div id="overlay">
 
-    <div class="dialog" id="dlgMenu" hidden>
+    <div class="dialog" id="dlgMenu">
       <img src="data:image/webp;base64,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" width="64" alt="奶蛙" style="display:block;margin:0 auto;">
       <h1>奶蛙台球</h1>
       <p class="best-line">最高分：<span id="menuBest">0</span> · 最高到达：<span id="menuBestLevel">第 1 关</span></p>
@@ -1353,15 +1340,9 @@ $("btnRetry").onclick = () => {
 };
 $("btnMenu2").onclick = () => { audio(); state = S.MENU; showDlg("dlgMenu"); };
 
-/* ---------------- 启动：直接进球桌，无开场菜单 ---------------- */
-(function bootGame() {
-  if (hasProgress()) { score = PROGRESS.score || 0; startLevel(PROGRESS.level); }
-  else { score = 0; startLevel(1); }
-  stage = 0;
-  while (stage < EVOLVE_AT.length - 1 && score >= EVOLVE_AT[stage + 1]) stage++;
-  state = S.AIM;
-  showDlg(null);
-})();
+/* ---------------- 启动：开场菜单 ---------------- */
+refreshMenu();
+showDlg("dlgMenu");
 requestAnimationFrame(loop);
 </script>
 </body>
