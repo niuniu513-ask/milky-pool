@@ -272,6 +272,19 @@
   html.phone #wrap { width:calc(var(--view-w) - 2 * var(--edge)); height:calc(var(--view-h) - 2 * var(--edge)); }
   html.phone #gameTools { max-height:calc(var(--view-h) - 2 * var(--edge)); }
   html.phone .dialog,html.phone #dlgMenu { max-height:calc(var(--view-h) - 2 * var(--edge) - 16px); }
+  #dlgDonate { width:min(92vw,650px); }
+  .donate-layout { display:grid; grid-template-columns:240px 1fr; gap:24px; align-items:center; text-align:left; margin-top:14px; }
+  .donate-qr { display:block; width:100%; height:auto; border:1px solid #ead5a0; border-radius:16px; background:white; }
+  .donate-copy p { line-height:1.8; color:#896927; margin:8px 0; }
+  .donate-copy .btn { text-align:center; text-decoration:none; }
+  .donate-recipient { font-size:12px; text-align:center; margin-top:8px; color:#896927; }
+  .club-links { display:flex; gap:6px; }.club-links .btn { flex:1; font-size:12px; padding-left:4px; padding-right:4px; }
+  html.phone #dlgDonate { width:min(calc(var(--view-w) - 48px),650px); padding:12px 18px; }
+  html.phone .donate-layout { grid-template-columns:minmax(150px,210px) 1fr; gap:18px; margin-top:8px; }
+  html.phone #dlgDonate h2 { margin:0; font-size:18px; }
+  html.phone .donate-copy p { font-size:12px; line-height:1.6; }
+  html.phone.compact .donate-layout { grid-template-columns:180px 1fr; gap:12px; }
+  html.phone.compact .donate-copy .btn { min-height:38px; padding:7px; }
 
 </style>
 </head>
@@ -321,10 +334,18 @@
       <select id="practicePreset"><option value="0">直线入袋 · 先学会轻轻一推</option><option value="1">切球练习 · 找到接触点</option><option value="2">借库练习 · 看懂反弹路线</option><option value="3">自由清台 · 六只奶娃等你接</option></select>
       </section><section class="club-panel"><h2>奶娃的快乐小窝</h2>
       <div class="family-peek" id="familyPeek" aria-label="奶家人应援团"></div><div id="clubSummary" class="club-summary"></div>
-      <button class="btn ghost" id="btnCollection">奶娃收集册 →</button>
+      <div class="club-links"><button class="btn ghost" id="btnCollection">奶娃收集册 →</button><button class="btn mint" id="btnDonate">打赏作者</button></div>
       <div class="theme-label">换一张喜欢的球桌</div><div id="themes" class="theme-row"></div>
       <div id="chain"></div>
       <p class="hint">把奶蛙球全部送进袋口 · 奶蛙神球必须最后进<br>拖拽拉杆，松手出杆；也可瞄准后点「出杆」<br>方向键微调 · 空格出杆 · 退出键暂停</p></section></div>
+    </div>
+
+    <div class="dialog" id="dlgDonate" hidden aria-labelledby="donateTitle">
+      <h2 id="donateTitle">请作者喝杯奶茶</h2>
+      <div class="donate-layout">
+        <div><img id="donateQr" class="donate-qr" src="assets/donate-qr.png" alt="作者的微信收款码" width="548" height="548"><div class="donate-recipient">微信收款人：**乐</div></div>
+        <div class="donate-copy"><p>如果奶娃陪你度过了开心的一局，欢迎请作者喝杯奶茶。</p><p>自愿支持，金额随心。谢谢你喜欢奶蛙台球！</p><p>用微信扫一扫；同一部手机可保存原图，再到微信扫一扫中选择相册。</p><a id="donateDownload" class="btn mint" href="assets/donate-wechat.png" download="奶蛙台球-微信收款码.png" target="_blank" rel="noopener">保存收款码原图</a><button id="btnDonateBack" class="btn ghost">回俱乐部</button></div>
+      </div>
     </div>
 
     <div class="dialog" id="dlgCollection" hidden>
@@ -1615,7 +1636,7 @@ function shade(hex, k) {
 
 /* ---------------- 弹窗 & 菜单 ---------------- */
 function showDlg(id) {
-  ["dlgMenu", "dlgPause", "dlgLevel", "dlgOver", "dlgVs", "dlgCollection", "dlgHelp"].forEach(d => $(d).hidden = (d !== id));
+  ["dlgMenu", "dlgPause", "dlgLevel", "dlgOver", "dlgVs", "dlgCollection", "dlgHelp", "dlgDonate"].forEach(d => $(d).hidden = (d !== id));
   $("overlay").classList.toggle("hidden", !id);
   const inGame = state === S.AIM || state === S.ROLL;
   $("gameTools").hidden=!!id || !inGame;
@@ -1715,6 +1736,8 @@ $("btnFullscreen").onclick=async()=>{try{if(!document.fullscreenElement)await do
 $("btnPractice").onclick=()=>{audio();startPractice($("practicePreset").value);};
 $("btnCollection").onclick=()=>{refreshCollection();showDlg('dlgCollection');};
 $("btnCollectionBack").onclick=()=>showDlg('dlgMenu');
+$('btnDonate').onclick=()=>showDlg('dlgDonate');
+$('btnDonateBack').onclick=()=>showDlg('dlgMenu');
 $("btnBackClub").onclick=()=>{matchEpoch++;mode='levels';VS=null;state=S.MENU;showDlg('dlgMenu');};
 $("btnGuide").onclick=()=>{PROFILE.guide=!PROFILE.guide;saveClub();};
 $("btnSound").onclick=()=>{PROFILE.sound=!PROFILE.sound;saveClub();if(PROFILE.sound)audio();};
