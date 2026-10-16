@@ -1,0 +1,146 @@
+<div align="center">
+
+# Codex 奶蛙桌宠
+
+**简体中文 · [English](./README.en.md)**
+
+一个为 Codex 打造的奶龙 / 奶蛙桌面宠物 Naifrog / Naiwa Codex pet
+
+</div>
+
+## 快速安装
+
+> [!NOTE]
+> 通过 Petdex，现已支持在以下 coding agents 中使用奶蛙桌宠：
+
+<div align="center">
+
+<table>
+  <tr>
+    <td align="center" width="20%"><img src="https://cdn.jsdelivr.net/gh/crafter-station/petdex@5d1844be151bb4e613b62b2e50a70bc8e1540d65/packages/petdex-desktop-native/src/assets/agents/claude-code.png" width="40" height="40" alt="Claude Code" /><br /><sub><strong>Claude Code</strong></sub></td>
+    <td align="center" width="20%"><img src="https://cdn.jsdelivr.net/gh/crafter-station/petdex@5d1844be151bb4e613b62b2e50a70bc8e1540d65/packages/petdex-desktop-native/src/assets/agents/codex.png" width="40" height="40" alt="Codex" /><br /><sub><strong>Codex</strong></sub></td>
+    <td align="center" width="20%"><img src="https://cdn.jsdelivr.net/gh/crafter-station/petdex@5d1844be151bb4e613b62b2e50a70bc8e1540d65/packages/petdex-desktop-native/src/assets/agents/gemini.png" width="40" height="40" alt="Gemini CLI" /><br /><sub><strong>Gemini CLI</strong></sub></td>
+    <td align="center" width="20%"><img src="https://cdn.jsdelivr.net/gh/crafter-station/petdex@5d1844be151bb4e613b62b2e50a70bc8e1540d65/packages/petdex-desktop-native/src/assets/agents/opencode-light.png" width="40" height="40" alt="OpenCode" /><br /><sub><strong>OpenCode</strong></sub></td>
+    <td align="center" width="20%"><img src="https://cdn.jsdelivr.net/gh/crafter-station/petdex@5d1844be151bb4e613b62b2e50a70bc8e1540d65/packages/petdex-desktop-native/src/assets/agents/qoder.png" width="40" height="40" alt="Qoder" /><br /><sub><strong>Qoder</strong></sub></td>
+  </tr>
+  <tr>
+    <td align="center" width="20%"><img src="https://cdn.jsdelivr.net/gh/crafter-station/petdex@5d1844be151bb4e613b62b2e50a70bc8e1540d65/packages/petdex-desktop-native/src/assets/agents/kimi-code.png" width="40" height="40" alt="Kimi Code" /><br /><sub><strong>Kimi Code</strong></sub></td>
+    <td align="center" width="20%"><img src="https://cdn.jsdelivr.net/gh/crafter-station/petdex@5d1844be151bb4e613b62b2e50a70bc8e1540d65/packages/petdex-desktop-native/src/assets/agents/codebuddy.png" width="40" height="40" alt="CodeBuddy" /><br /><sub><strong>CodeBuddy</strong></sub></td>
+    <td align="center" width="20%"><img src="https://cdn.jsdelivr.net/gh/crafter-station/petdex@5d1844be151bb4e613b62b2e50a70bc8e1540d65/packages/petdex-desktop-native/src/assets/agents/omp.png" width="40" height="40" alt="OMP" /><br /><sub><strong>OMP</strong></sub></td>
+    <td align="center" width="20%"><img src="https://cdn.jsdelivr.net/gh/crafter-station/petdex@5d1844be151bb4e613b62b2e50a70bc8e1540d65/packages/petdex-desktop-native/src/assets/agents/hermes.png" width="40" height="40" alt="Hermes" /><br /><sub><strong>Hermes</strong></sub></td>
+    <td align="center" width="20%"><img src="https://api.iconify.design/simple-icons:deepseek.svg?color=%234D6BFE" width="40" height="40" alt="DeepSeek Harness" /><br /><sub><strong>DeepSeek Harness</strong></sub></td>
+  </tr>
+</table>
+
+</div>
+
+对你的开发工具发送这句话：
+
+```
+请帮我安装这个奶蛙桌宠：https://petdex.dev/pets/nailong-7，并根据当前开发工具自动完成安装和启用。
+```
+
+## 动画预览
+
+<div align="center">
+
+<table>
+  <tr>
+    <td align="center"><strong>待机</strong><br /><img src="./naifrog/previews/idle.png" width="160" alt="奶蛙待机动画" /><br /><code>idle</code> · 6 帧</td>
+    <td align="center"><strong>招手</strong><br /><img src="./naifrog/previews/waving.png" width="160" alt="奶蛙招手动画" /><br /><code>waving</code> · 4 帧</td>
+    <td align="center"><strong>捧腹大笑</strong><br /><img src="./naifrog/previews/jumping.png" width="160" alt="奶蛙捧腹大笑动画" /><br /><code>jumping</code> · 5 帧</td>
+  </tr>
+  <tr>
+    <td align="center"><strong>向左移动</strong><br /><img src="./naifrog/previews/running-left.png" width="160" alt="奶蛙向左移动" /><br /><code>running-left</code> · 8 帧</td>
+    <td align="center"><strong>执行任务</strong><br /><img src="./naifrog/previews/running.png" width="160" alt="奶蛙执行任务动画" /><br /><code>running</code> · 6 帧</td>
+    <td align="center"><strong>向右移动</strong><br /><img src="./naifrog/previews/running-right.png" width="160" alt="奶蛙向右移动" /><br /><code>running-right</code> · 8 帧</td>
+  </tr>
+  <tr>
+    <td align="center"><strong>等待输入</strong><br /><img src="./naifrog/previews/waiting.png" width="160" alt="奶蛙等待输入动画" /><br /><code>waiting</code> · 6 帧</td>
+    <td align="center"><strong>完成待查看</strong><br /><img src="./naifrog/previews/review.png" width="160" alt="奶蛙完成待查看动画" /><br /><code>review</code> · 6 帧</td>
+    <td align="center"><strong>失败或阻塞</strong><br /><img src="./naifrog/previews/failed.png" width="160" alt="奶蛙失败或阻塞动画" /><br /><code>failed</code> · 8 帧</td>
+  </tr>
+</table>
+
+### 注视方向
+
+<p align="center">
+  <img src="./naifrog/previews/look-directions.png" width="192" alt="奶蛙的 16 个注视方向" /><br />
+  <code>look directions</code> · 16 个方向
+</p>
+
+</div>
+
+## 手动安装
+
+1. 克隆仓库：
+
+   ```bash
+   git clone https://github.com/timerring/codex-pet-naiwa.git
+   ```
+
+2. 打开 Codex App，进入 **Settings → Pets → Custom pets → Open folder**。
+3. 将仓库中的 `naifrog` 文件夹复制到打开的目录。
+4. 返回 Codex App，点击 **Refresh**，然后选择奶蛙。
+
+### 命令行安装
+
+#### macOS / Linux
+
+```bash
+git clone https://github.com/timerring/codex-pet-naiwa.git
+mkdir -p "${CODEX_HOME:-$HOME/.codex}/pets/naifrog"
+cp -R codex-pet-naiwa/naifrog/. "${CODEX_HOME:-$HOME/.codex}/pets/naifrog/"
+```
+
+#### Windows PowerShell
+
+```powershell
+git clone https://github.com/timerring/codex-pet-naiwa.git
+$codexHome = if ($env:CODEX_HOME) { $env:CODEX_HOME } else { Join-Path $HOME ".codex" }
+$petDir = Join-Path $codexHome "pets\naifrog"
+New-Item -ItemType Directory -Force $petDir | Out-Null
+Copy-Item ".\codex-pet-naiwa\naifrog\*" $petDir -Recurse -Force
+```
+
+## 关于 Web 端
+
+> [!NOTE]
+> Codex 桌面端与 ChatGPT Web 端的自定义宠物分开管理；安装到桌面端的奶蛙无法同步到 Web 端。
+
+<p align="center">
+  <img src="./naifrog/previews/chatgpt-web-pet.png" width="382" alt="ChatGPT Web 中的奶蛙宠物" />
+</p>
+
+Web 端请下载 [`naifrog/web-spritesheet.png`](./naifrog/web-spritesheet.png)，然后在 **Settings → Personalization → Pet → Upload pet** 中上传。该文件是 Web 端所需的 `1536 × 1872` 透明 PNG；桌面端使用的 `spritesheet.webp`（`1536 × 2288`）不能直接上传到 Web 端。
+
+也可让 Codex 直接帮你上传：
+
+> 请帮我把这个奶蛙设置为 ChatGPT Web 宠物：<https://github.com/timerring/codex-pet-naiwa>。下载仓库中的 `naifrog/web-spritesheet.png`，然后在我已登录的 ChatGPT Web 中进入 **Settings → Personalization → Pet → Upload pet**，完成上传并启用奶蛙，最后告诉我结果。
+
+## 文件结构
+
+```text
+naifrog/
+├── pet.json
+├── spritesheet.webp
+├── web-spritesheet.png
+└── previews/
+    ├── chatgpt-web-pet.png
+    └── …
+```
+
+- `pet.json`：桌宠元数据
+- `spritesheet.webp`：Codex v2 动画精灵表
+- `web-spritesheet.png`：ChatGPT Web 端上传素材
+- `previews/chatgpt-web-pet.png`：ChatGPT Web 端效果预览
+- `previews/`：README 预览图片，不影响桌宠运行
+
+## Credits / 致谢
+
+- [Nitrogen216/awesome_pets](https://github.com/Nitrogen216/awesome_pets)
+- [LynnShaw/naiwa-pet](https://github.com/LynnShaw/naiwa-pet)
+
+## 许可证
+
+本仓库原创内容使用 [MIT License](LICENSE)。Credits 中的第三方素材不在 MIT 授权范围内。

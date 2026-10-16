@@ -2,8 +2,8 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>奶蛙台球 · Milky Pool</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>奶蛙台球 · 奶娃俱乐部</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body { width: 100%; height: 100%; overflow: hidden; }
@@ -11,10 +11,10 @@
     background: #fff3e0;
     font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
     display: flex; align-items: center; justify-content: center;
-    touch-action: none;
+    touch-action: auto;
   }
   #wrap { position: relative; }
-  canvas { display: block; border-radius: 14px; box-shadow: 0 6px 24px rgba(120, 80, 30, 0.18); }
+  canvas { touch-action:none; display: block; border-radius: 14px; box-shadow: 0 6px 24px rgba(120, 80, 30, 0.18); }
 
   /* 暂停按钮 */
   #pauseBtn {
@@ -115,64 +115,234 @@
   #chain img { width: 30px; image-rendering: auto; opacity: 0.92; }
   #chain .arrow { color: #d8c290; font-size: 11px; padding: 0 1px 8px; }
 
-  /* 矮视口（手机横屏 / 矮窗口）压缩弹窗 */
-  @media (max-height: 640px) {
-    .dialog { max-height: 94%; padding: 12px 14px; border-radius: 14px; }
-    .dialog h1 { font-size: 19px; margin: 2px 0; }
-    .dialog h2 { font-size: 16px; margin: 2px 0; }
-    .dialog p { font-size: 12px; margin: 2px 0; }
-    .btn { margin-top: 6px; padding: 9px 0; font-size: 14px; }
-    #board { max-height: 48px; margin-top: 6px; }
-    #board .brow { line-height: 1.6; }
-    #chain { margin-top: 5px; }
-    #chain img { width: 21px; }
-    #chain .arrow { font-size: 9px; padding-bottom: 5px; }
-    .hint { display: none; }
-    .dialog img[width="64"] { width: 42px; }
-    .dialog img[width="56"] { width: 38px; }
-  }
+  :root { --ink:#36564b; --mint:#397f65; --cream:#fffdf6; --pink:#edafba; }
+  [hidden] { display:none !important; }
+  body { background:#dcece3; background-image:radial-gradient(#a3c2af 1px,transparent 1px); background-size:22px 22px; color:var(--ink); }
+  button, select, input { font-family:inherit; } button:focus-visible,select:focus-visible,input:focus-visible,canvas:focus-visible { outline:3px solid #337c60; outline-offset:3px; }
+  #wrap { max-width:100%; } canvas { border:1px solid #d5dfd0; box-shadow:0 16px 50px #264b3a25; }
+  #overlay { position:fixed; background:#20493877; padding:14px; backdrop-filter:blur(5px); }
+  .dialog { width:min(92vw,420px); max-width:none; max-height:calc(100dvh - 28px); border:1px solid #f6e8c9; box-shadow:0 20px 80px #153e3d44; touch-action:pan-y; }
+  #dlgMenu { width:min(92vw,760px); padding:22px 28px; }
+  #dlgMenu > img { width:68px; height:68px; object-fit:contain; margin-bottom:5px !important; }
+  .eyebrow { font-size:10px; font-weight:800; letter-spacing:2px; color:#56826d; margin:5px 0; }
+  .dialog h1 { font-size:30px; color:#36564b; letter-spacing:2px; }
+  .title-dot { font-size:12px; letter-spacing:0; background:#dfeddb; padding:5px 8px; border-radius:14px; vertical-align:middle; margin-left:8px; }
+  .dialog .intro { font-size:12px; margin:6px 0 16px; color:#648575; }
+  .menu-grid { display:grid; grid-template-columns:1.1fr 1fr; gap:26px; text-align:left; margin-top:14px; }
+  .menu-grid h2 { color:#36564b; font-size:15px; margin:0 0 9px; }
+  .club-panel { border-left:1px dashed #d8d9c4; padding-left:24px; }
+  .btn { font-size:14px; padding:11px 10px; background:#408568; box-shadow:0 3px 0 #28634a; }
+  .btn:active { box-shadow:0 1px 0 #28634a; }.btn.ghost { color:#486859; background:#fffef9; border-color:#d5dfd1; }
+  .btn.mint { background:#e6efda; color:#48613a; box-shadow:none; border:1px solid #c5d6b2; }
+  #btnVersus { background:#5d80a2 !important; box-shadow:0 3px 0 #3a5c7c; }
+  #board { margin:7px 0; max-width:none; background:#f4f1df; border-color:#e6dfc4; max-height:65px; }
+  .best-line { font-size:11px; }.dialog .hint { color:#70816c; font-size:11px; text-align:left; }
+  #chain { flex-wrap:wrap; justify-content:flex-start; gap:1px; }#chain img { width:24px; }
+  .club-summary { background:#edf3e7; border-radius:12px; padding:14px; font-size:12px; line-height:2; color:#486859; }
+  .club-summary strong { font-size:22px; color:#397f65; }.theme-label,.practice-label { display:block; font-size:11px; color:#6e826b; margin:13px 0 7px; }
+  select { width:100%; padding:9px 6px; font-size:12px; border:1px solid #d5dfd1; border-radius:8px; color:#486859; background:#fffdf6; }
+  .theme-row { display:flex; gap:6px; }.theme-row button { flex:1; padding:8px 2px; border:1px solid #d5dfd1; border-radius:10px; background:#fff; font-size:11px; cursor:pointer; color:#486859; }
+  .theme-row button[aria-pressed=true] { border:2px solid #397f65; background:#edf3e7; }
+  .theme-row button:disabled { opacity:.55; cursor:default; }
+  #gameTools { padding:9px 0 0; max-width:100%; }.toolrow { display:flex; gap:6px; align-items:center; flex-wrap:wrap; }
+  .mini { border:1px solid #aac4b2; border-radius:8px; padding:8px 10px; background:#f7faf2; color:#36564b; font-weight:600; font-size:12px; cursor:pointer; }
+  .mini.primary { background:#397f65; color:white; border-color:#397f65; }.mini:disabled { opacity:.45; cursor:default; }
+  .power-label { font-size:12px; font-weight:700; }#powerRange { width:clamp(70px,15vw,180px); accent-color:#397f65; touch-action:pan-x; }
+  .coach { display:flex; gap:8px; align-items:center; min-height:42px; font-size:12px; line-height:1.4; }
+  .coach img { width:33px; height:33px; object-fit:contain; }#coachText { flex:1; }#clubCounter { color:#57816a; font-size:11px; white-space:nowrap; }
+  #spinPad { bottom:auto; top:calc(100% - 162px); }#spinTip { bottom:auto; top:calc(100% - 182px); max-width:70%; font-size:9px; }
+  #toast { position:fixed; top:16px; left:50%; transform:translateX(-50%); pointer-events:none; z-index:30; padding:12px 20px; border-radius:14px; background:#36564b; color:#fffdf6; opacity:0; transition:opacity .2s; font-size:13px; max-width:90vw; }
+  #toast.visible { opacity:1; }#collectionGrid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:16px 0; }
+  .frog-card { background:#edf3e7; border-radius:12px; padding:10px 2px; font-size:11px; }.frog-card img { width:48px; height:48px; object-fit:contain; display:block; margin:auto; }.frog-card.locked img { filter:grayscale(1); opacity:.25; }.frog-card small { display:block; margin-top:5px; color:#65816c; }
+  #badgeGrid { text-align:left; font-size:12px; }.badge { padding:9px; border-bottom:1px solid #e3e8d8; color:#82907b; }.badge.earned { color:#397f65; }.dialog h3 { font-size:14px; color:#36564b; }
+  .help-copy { text-align:left; line-height:1.7; }.help-copy p { margin:14px 0; }.help-copy b { color:#36564b; }
+  @media(max-width:570px) { #dlgMenu { padding:18px; }.menu-grid { grid-template-columns:1fr; gap:18px; }.club-panel { border-left:0; padding:16px 0 0; border-top:1px dashed #d8d9c4; }#dlgMenu > img { width:48px; height:48px; }.dialog h1 { font-size:25px; }.mini { font-size:11px; padding:8px; }#clubCounter { display:none; }#spinPad { width:42px; height:42px; top:auto; bottom:105px; }#spinTip { display:none !important; }.coach { font-size:11px; }.toolrow { gap:4px; } }
+  html.phone-portrait #wrap { position:fixed; left:50%; top:50%; width:calc(var(--view-w) - 16px); max-width:none; height:calc(var(--view-h) - 16px); transform:translate(-50%,-50%) rotate(90deg); display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  html.phone #gameTools { width:100%; max-width:900px; padding-top:4px; }
+  html.phone .toolrow { flex-wrap:nowrap; justify-content:center; gap:5px; }
+  html.phone .mini { min-height:44px; min-width:44px; padding:7px; font-size:11px; }
+  html.phone #btnShoot { min-width:65px; }
+  html.phone #powerRange { width:clamp(65px,15vh,130px); height:44px; }
+  html.phone .coach { min-height:36px; font-size:11px; }
+  html.phone #clubCounter { display:none; }
+  html.phone #spinPad { top:auto; bottom:100px; left:14px; width:44px; height:44px; }
+  html.phone #spinTip { display:none !important; }
+  html.phone #overlay { padding:10px; }
+  html.phone .dialog { width:min(calc(var(--view-w) - 32px),420px); max-height:calc(var(--view-h) - 32px); }
+  html.phone #dlgMenu { width:min(calc(var(--view-w) - 32px),760px); padding:16px 22px; }
+  html.phone .menu-grid { grid-template-columns:1.1fr 1fr; gap:24px; }
+  html.phone .club-panel { border-left:1px dashed #d8d9c4; border-top:0; padding:0 0 0 20px; }
+  html.phone #dlgMenu > img { width:42px; height:42px; }
+  html.phone .dialog h1 { font-size:24px; }
+  html.phone #toast { top:8px; font-size:12px; }
+  html.phone-portrait #toast { position:absolute; top:4px; }
+  html.phone .btn { min-height:44px; }
+  html.phone .dialog select { min-height:44px; }
+  html.phone #dlgMenu .hint { line-height:1.5; }
+  #aiChoice { display:none; }
+  html.phone #dlgMenu { position:relative; }
+  html.phone #dlgMenu > img { position:absolute; left:22px; top:12px; }
+  html.phone #dlgMenu .intro, html.phone #chain, html.phone #dlgMenu .hint, html.phone #board, html.phone .diff-buttons { display:none !important; }
+  html.phone #dlgMenu .eyebrow { margin-top:0; }
+  html.phone #dlgMenu .menu-grid { margin-top:10px; }
+  html.phone #dlgMenu .btn { margin-top:7px; padding:8px; }
+  html.phone .versus-choice { display:flex; align-items:end; gap:6px; }
+  html.phone #aiChoice { display:block; width:72px; height:44px; margin-top:7px; }
+  html.phone .practice-label { margin:8px 0 4px; }
+  html.phone .theme-row button { min-height:44px; }
+  html.phone #btnGuide,html.phone #btnSound { display:none; }
+  html.phone #btnFullscreen { font-size:0; }html.phone #btnFullscreen::after { content:'⛶'; font-size:22px; }
+  html.phone #btnPlace { font-size:0; min-width:44px; }html.phone #btnPlace::after { content:'摆球'; font-size:11px; }
+  html.phone .power-label { white-space:nowrap; font-size:11px; }
+  .help-settings { display:flex; gap:8px; justify-content:center; }
+  html.phone #wrap { width:calc(var(--view-w) - 16px); height:calc(var(--view-h) - 16px); display:flex; flex-direction:row; align-items:center; justify-content:flex-start; gap:12px; }
+  html.phone #gameTools { width:180px; flex-shrink:0; padding:0; }
+  html.phone .toolrow { display:grid; grid-template-columns:1fr 1fr; gap:5px; }
+  html.phone .power-label,html.phone #powerRange,html.phone #btnShoot,html.phone #btnPlace { grid-column:1/-1; }
+  html.phone #powerRange { width:100%; height:28px; }
+  html.phone .coach { align-items:flex-start; padding-top:10px; font-size:11px; }
+  html.phone .coach img { width:28px; height:28px; }
+  html.phone #pauseBtn { top:8px; left:calc(var(--canvas-w) - 46px); right:auto; width:40px; height:40px; }
+  html.phone #spinPad { bottom:4px; left:8px; }
+  html.phone.compact #gameTools { width:146px; }
+  html.phone.compact .mini { min-height:40px; }
+  html.phone.compact .coach img { display:none; }
+  @media(prefers-reduced-motion:reduce) { * { scroll-behavior:auto !important; transition:none !important; } }
+
+
+  :root { --ink:#705326; --mint:#b8872d; --cream:#fffdf2; --pink:#edbac0; }
+  body { background-color:#fff3d0; background-image:radial-gradient(#e6cf94 1px,transparent 1px); color:#705326; }
+  #overlay { background:#78602f55; }
+  canvas { border-color:#e8d8a8; box-shadow:0 16px 50px #80632a22; }
+  .dialog { background:#fffdf3; border-color:#f5e4b4; }
+  .dialog h1,.menu-grid h2,.dialog h3,.help-copy b { color:#705326; }
+  .eyebrow,.dialog .intro { color:#a18242; }
+  .title-dot { background:#f7e8b6; }
+  .btn { background:#edba55; color:#594019; box-shadow:0 3px 0 #c99739; }
+  .btn:active { box-shadow:0 1px 0 #c99739; }
+  .btn.ghost { background:#fffdf5; color:#896927; border-color:#e6d7ac; }
+  .btn.mint { background:#fff0b9; color:#896322; border-color:#e9d494; }
+  #btnVersus { background:#c9d99a !important; color:#526439; box-shadow:0 3px 0 #a4b775; }
+  .club-summary,.frog-card { background:#fff1c4; color:#896927; }
+  .club-summary strong { color:#b48227; }
+  .club-panel { border-color:#e4d7ad; }
+  .theme-label,.practice-label,.dialog .hint { color:#91794a; }
+  .theme-row button,select { color:#896927; border-color:#e6d7ac; background:#fffdf5; }
+  .theme-row button[aria-pressed=true] { border-color:#b88a31; background:#fff1c4; }
+  .mini { border-color:#ddc58c; background:#fffbeb; color:#705326; }
+  .mini.primary { background:#edba55; border-color:#dca83e; color:#594019; }
+  #powerRange { accent-color:#c49432; }
+  #toast { background:#72572c; color:#fff9e7; }
+  .badge.earned,#clubCounter { color:#a67a22; }.frog-card small { color:#91794a; }
+  #pauseBtn { background:#fff9e7; color:#896927; }
+  button:focus-visible,select:focus-visible,input:focus-visible,canvas:focus-visible { outline-color:#b4862c; }
+
+
+  body { background-image:radial-gradient(ellipse at 15% 20%,#fff9e6 0,transparent 40%),radial-gradient(#e9d396 1px,transparent 1px); }
+  .dialog { border:3px solid #f3db9a; border-radius:28px; box-shadow:0 9px 0 #b7934c22,0 20px 60px #73552230; }
+  .dialog h1 { font-family:'YouYuan','幼圆','Microsoft YaHei',sans-serif; font-size:32px; letter-spacing:3px; }
+  #dlgMenu > img { filter:drop-shadow(0 5px 0 #e8cf8644); transform:rotate(-5deg); }
+  .eyebrow { letter-spacing:1px; font-size:11px; color:#a27830; }
+  .title-dot { border-radius:10px 10px 10px 3px; background:#ffe9a4; border:1px solid #efd38b; }
+  .btn { border-radius:17px; border:1px solid #dba33f; box-shadow:0 4px 0 #d29d3d; }
+  .btn.ghost { border:1.5px solid #ead5a0; }.btn.mint { border-color:#ebcf82; }
+  .mini { border-radius:13px; border-width:1.5px; }
+  .mini.primary { box-shadow:0 3px 0 #d29d3d; }
+  .club-summary { border-radius:18px 18px 18px 5px; border:1.5px dashed #e3c26d; }
+  .welcome-sticker { position:absolute; top:33px; left:30px; display:flex; align-items:center; gap:7px; background:#fff4cc; border:1.5px solid #e6c77b; border-radius:16px 16px 4px 16px; padding:9px 12px; color:#98722c; font-size:11px; transform:rotate(-6deg); box-shadow:0 3px 0 #ebd49a44; }
+  #dlgMenu { position:relative; }.welcome-sticker small { display:block; font-size:9px; margin-top:3px; color:#a38954; }.sticker-star { color:#e6b44c; font-size:20px; }
+  .bun-icon { position:relative; display:inline-block; width:30px; height:27px; background:linear-gradient(#fffbe3,#ffe39a); border:1.5px solid #d9b36a; border-radius:55% 55% 45% 45%; }
+  .bun-icon::before { content:''; position:absolute; width:3px; height:3px; border-radius:50%; top:12px; left:7px; background:#876230; box-shadow:11px 0 #876230; }.bun-icon::after { content:''; position:absolute; width:5px; height:3px; border-radius:50%; top:16px; left:4px; background:#efb5a1; box-shadow:15px 0 #efb5a1; }.bun-icon i { position:absolute; left:10px; top:4px; width:7px; height:3px; border-top:1px solid #d9b36a; transform:rotate(20deg); }
+  .family-peek { height:45px; display:flex; align-items:end; gap:8px; margin-bottom:-5px; padding-left:12px; }.family-peek img { width:38px; height:42px; object-fit:contain; transform:rotate(var(--tilt)); filter:drop-shadow(0 2px 0 #d7bd6b55); }
+  .frog-card { border:1px solid #eed58f; border-radius:18px; position:relative; }.frog-card:not(.locked)::after { content:'♥'; position:absolute; top:5px; right:7px; color:#dda59a; font-size:10px; }
+  .coach { color:#856528; }.coach img { background:#fff7db; border:1px solid #ead39a; border-radius:50%; padding:3px; width:38px; height:38px; }
+  #coachText { background:#fff9e6; padding:7px 9px; border-radius:12px 12px 12px 3px; border:1px solid #ecdbab; }
+  #coachText.warning { background:#fff0eb; border-color:#d78b80; color:#a63f38; font-weight:700; }
+  #coachText.placement { background:#edf6e6; border-color:#a5bd86; color:#4b6f3a; font-weight:700; }
+  html.phone .welcome-sticker { display:none; }html.phone .family-peek { display:none; }
+  html.phone #dlgMenu { border-radius:22px; }html.phone .dialog h1 { font-size:24px; }
+  html.phone .coach { gap:5px; }html.phone #coachText { font-size:10px; padding:6px; line-height:1.45; }
+  html.phone .coach img { width:28px; height:28px; }
+  .dialog { touch-action:pan-y; overscroll-behavior:contain; -webkit-overflow-scrolling:touch; }
+  html.phone #gameTools { max-height:calc(var(--view-h) - 16px); overflow-y:auto; touch-action:pan-y; overscroll-behavior:contain; }
+  html.phone #powerRange { touch-action:none; }
+  html.phone-portrait .dialog,html.phone-portrait #gameTools { touch-action:pan-x pan-y; }
+  :root { --edge:max(8px,env(safe-area-inset-top),env(safe-area-inset-right),env(safe-area-inset-bottom),env(safe-area-inset-left)); }
+  #safeAreaProbe { position:fixed; visibility:hidden; width:var(--edge); pointer-events:none; }
+  html.phone #wrap { width:calc(var(--view-w) - 2 * var(--edge)); height:calc(var(--view-h) - 2 * var(--edge)); }
+  html.phone #gameTools { max-height:calc(var(--view-h) - 2 * var(--edge)); }
+  html.phone .dialog,html.phone #dlgMenu { max-height:calc(var(--view-h) - 2 * var(--edge) - 16px); }
+
 </style>
 </head>
 <body>
+<div id="safeAreaProbe" aria-hidden="true"></div>
 <div id="wrap">
-  <canvas id="cvs"></canvas>
-  <button id="pauseBtn">Ⅱ</button>
+  <canvas id="cvs" tabindex="0" aria-label="奶蛙台球球桌，方向键微调，空格出杆"></canvas>
+  <button id="pauseBtn" aria-label="暂停游戏" title="暂停 · 退出键">Ⅱ</button>
   <div id="spinPad"><div id="spinDot"></div></div>
   <div id="spinTip">加塞：上=跟球 下=缩杆 · 点中间复位</div>
 
+  <div id="gameTools" hidden>
+    <div class="toolrow">
+      <label class="power-label" for="powerRange">奶力 <output id="powerValue">45%</output></label>
+      <input id="powerRange" type="range" min="10" max="100" value="45" aria-label="出杆力度">
+      <button id="btnShoot" class="mini primary">出杆</button>
+      <button id="btnGuide" class="mini" aria-pressed="true">辅助：开</button>
+      <button id="btnSound" class="mini" aria-pressed="true">音效：开</button>
+      <button id="btnPlace" class="mini" hidden>自由摆母球</button>
+      <button id="btnFineLeft" class="mini" aria-label="向左微调瞄准">↶</button><button id="btnFineRight" class="mini" aria-label="向右微调瞄准">↷</button><button id="btnHelp" class="mini">玩法</button><button id="btnFullscreen" class="mini">全屏横屏</button>
+    </div>
+    <div class="coach"><img id="coachFace" alt="奶娃陪练"><span id="coachText" role="status" aria-live="polite">奶娃陪你慢慢练，先瞄准，再出杆。</span><span id="clubCounter"></span></div>
+  </div>
+  <div id="toast" role="status" aria-live="polite"></div>
   <div id="overlay">
 
     <div class="dialog" id="dlgMenu">
       <img src="data:image/webp;base64,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" width="64" alt="奶蛙" style="display:block;margin:0 auto;">
-      <h1>奶蛙台球</h1>
+      <div class="eyebrow">奶黄包准备好啦 · 奶娃营业中</div>
+      <h1>奶蛙台球<span class="title-dot">俱乐部</span></h1>
+      <p class="intro">把烦恼打进袋，把奶娃接回家。</p>
+      <div class="welcome-sticker" aria-label="奶娃的奶黄包应援"><span class="bun-icon" aria-hidden="true"><i></i></span><span>奶黄包应援站<small>今天也要开心打球呀</small></span><span class="sticker-star" aria-hidden="true">✦</span></div>
+      <div class="menu-grid"><section class="play-panel"><h2>今天，来一杆？</h2>
       <p class="best-line">最高分：<span id="menuBest">0</span> · 最高到达：<span id="menuBestLevel">第 1 关</span></p>
       <p class="best-line progress-line" id="menuProgress" hidden></p>
       <div id="board" aria-label="排行榜"></div>
       <button class="btn" id="btnStart">开始游戏</button>
-      <button class="btn ghost" id="btnBackTable" style="background:#fff3d6;">回到球桌 ▶</button>
-      <button class="btn" id="btnVersus" style="background:#6aa8e8;">对战 AI · 奶王 🐸👑</button>
-      <div style="display:flex;gap:8px;justify-content:center;margin-top:8px;">
-        <button class="btn ghost" data-diff="0" style="padding:6px 12px;font-size:12px;">AI·随手</button>
-        <button class="btn ghost" data-diff="1" style="padding:6px 12px;font-size:12px;">AI·老练</button>
-        <button class="btn ghost" data-diff="2" style="padding:6px 12px;font-size:12px;">AI·大师</button>
+      <div class="versus-choice"><button class="btn" id="btnVersus" style="background:#6aa8e8;">挑战奶王 · 来切磋呀</button><select id="aiChoice" aria-label="奶王难度"><option value="0">随手</option><option value="1" selected>老练</option><option value="2">大师</option></select></div>
+      <div class="diff-buttons" style="display:flex;gap:8px;justify-content:center;margin-top:8px;">
+        <button class="btn ghost" data-diff="0" style="padding:6px 12px;font-size:12px;">奶王·随手</button>
+        <button class="btn ghost" data-diff="1" style="padding:6px 12px;font-size:12px;">奶王·老练</button>
+        <button class="btn ghost" data-diff="2" style="padding:6px 12px;font-size:12px;">奶王·大师</button>
       </div>
       <button class="btn ghost" id="btnRestart" hidden>从第 1 关重新开始</button>
-      <button class="btn" id="btnDonate" style="background:#f7c948;color:#7a4a1d;">打赏作者 🐸💛</button>
+      <button class="btn mint" id="btnPractice">奶娃陪练 · 自由练习</button>
+      <label class="practice-label" for="practicePreset">练习球型</label>
+      <select id="practicePreset"><option value="0">直线入袋 · 先学会轻轻一推</option><option value="1">切球练习 · 找到接触点</option><option value="2">借库练习 · 看懂反弹路线</option><option value="3">自由清台 · 六只奶娃等你接</option></select>
+      </section><section class="club-panel"><h2>奶娃的快乐小窝</h2>
+      <div class="family-peek" id="familyPeek" aria-label="奶家人应援团"></div><div id="clubSummary" class="club-summary"></div>
+      <button class="btn ghost" id="btnCollection">奶娃收集册 →</button>
+      <div class="theme-label">换一张喜欢的球桌</div><div id="themes" class="theme-row"></div>
       <div id="chain"></div>
-      <p class="hint">把奶蛙球全部送进袋口 · 奶蛙神球必须最后进<br>拖拽奶珠拉杆瞄准，松手出杆 · 左下角转盘加塞</p>
+      <p class="hint">把奶蛙球全部送进袋口 · 奶蛙神球必须最后进<br>拖拽拉杆，松手出杆；也可瞄准后点「出杆」<br>方向键微调 · 空格出杆 · 退出键暂停</p></section></div>
     </div>
 
-    <div class="dialog" id="dlgDonate" hidden>
-      <img src="data:image/webp;base64,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" width="56" alt="奶蛙" style="display:block;margin:0 auto;">
-      <h2>请作者喝杯奶茶 🧋</h2>
-      <p style="color:#a5854e;font-size:13px;line-height:1.8;margin:6px 0 10px;">奶蛙台球由牛哥独立开发，全免费无广告。<br>如果它陪你打发了课间十分钟，可以请作者喝杯奶茶～</p>
-      <div id="donateQrBox" style="width:200px;height:200px;margin:0 auto 10px;border-radius:16px;border:3px dashed #f2c14e;background:#fffdf6;display:flex;align-items:center;justify-content:center;overflow:hidden;">
-        <img id="donateImg" src="donate.png" alt="收款码" style="display:none;width:100%;height:100%;object-fit:contain;">
-        <span id="donateTip" style="color:#c9a86a;font-size:12px;text-align:center;line-height:1.7;padding:10px;">收款码待上架<br>（把收款码图片命名为 donate.png<br>放到游戏同目录即可显示）</span>
-      </div>
-      <button class="btn ghost" id="btnDonateBack">返回菜单</button>
+    <div class="dialog" id="dlgCollection" hidden>
+      <div class="eyebrow">奶家人集合啦</div><h2>奶娃收集册</h2>
+      <p>闯关或对战中亲手送奶娃进袋，就能收集对应形态。</p>
+      <div id="collectionGrid"></div><h3>奶娃荣誉墙</h3><div id="badgeGrid"></div>
+      <button class="btn" id="btnCollectionBack">回俱乐部</button>
     </div>
-
+    <div class="dialog" id="dlgHelp" hidden>
+      <h2>奶娃的球桌小抄</h2><div class="help-settings"><button class="mini" id="helpGuide">瞄准辅助：开</button><button class="mini" id="helpSound">音效：开</button></div>
+      <div class="help-copy"><p><b>瞄准与出杆</b><br>移动鼠标瞄准；触屏先轻点目标方向，再调奶力并点出杆。也可按住台面，沿球杆向后拉，松手出杆。</p>
+      <p><b>看懂辅助线</b><br>虚线是母球路线，橙线是目标球方向，蓝线是母球切线；碰库后显示一次反弹。路线只作几何参考，不包含速度、摩擦与加塞效果。</p>
+      <p><b>加塞</b><br>左下转盘：上方跟球，下方缩杆，左右改变碰库走向。点中心复位。</p>
+      <p><b>奶蛙闯关</b><br>彩球全部进袋后再打奶蛙神；提前进神球罚两杆。白球进袋后获得自由球，点击台面空位重新摆放，不额外罚杆。清台保存下一关，重打会回退本关得分。</p>
+      <p><b>奶王八球对战</b><br>十五球，1–7 为实色组，9–15 为条纹组。首次合法进球定组；清完己组再打黑 8。空杆、首触错组、母球落袋或接触后既不进球也不碰库，对手得自由球；请在台面点击空位摆白球。红色「禁打」是对方球或暂不能打的黑 8，绿色圆环是己方球。黑 8 提前入袋或入袋伴随犯规直接判负。采用休闲规则，不要求报袋，开球进黑 8 也判负。</p>
+      <p><b>奶娃陪练</b><br>四种球型无限练习，可自由摆放母球。练习不改闯关存档、排行榜和收藏。</p></div>
+      <button class="btn" id="btnHelpBack">知道啦，回球桌</button>
+    </div>
     <div class="dialog" id="dlgVs" hidden>
       <div style="font-size:30px;"><span id="vsIcon">🏆</span></div>
       <h2 id="vsTitle">胜利！</h2>
@@ -186,9 +356,8 @@
       <h2>暂停中</h2>
       <p>杆数 <b id="pauseShots">0</b> · 得分 <b id="pauseScore">0</b></p>
       <button class="btn" id="btnResume">继续打球</button>
-      <button class="btn ghost" id="btnPauseMenu">主菜单 · 对战/排行/打赏 🏠</button>
       <button class="btn ghost" id="btnRetryLv">重打本关</button>
-      <button class="btn ghost" id="btnQuit">结束本局并记分</button>
+      <button class="btn ghost" id="btnQuit">结束本局并记分</button><button class="btn ghost" id="btnBackClub">回俱乐部</button>
     </div>
 
     <div class="dialog" id="dlgLevel" hidden>
@@ -222,26 +391,33 @@
    纯 Canvas 2D + 自写物理（等质量弹性碰撞 / 库边反弹 / 袋口捕获）
    ================================================================ */
 
-let W = 900, H = 560;
-(function pickSize() {
-  // 按屏幕比例动态选台面尺寸：横屏手机（19.5:9 等）也能铺满，不留大黑边
-  const ar = Math.min(Math.max(innerWidth / Math.max(innerHeight, 1), 1.35), 2.1);
-  H = 520; W = Math.round(H * ar);
-  if (W < 860) { W = 860; H = Math.round(W / Math.min(ar, 1.6)); }
-})();
+const W = 900, H = 560;
 const cvs = document.getElementById("cvs");
 const ctx = cvs.getContext("2d");
-const DPR = Math.min(window.devicePixelRatio || 1, 2);   // 高分屏高清渲染
-cvs.width = W * DPR; cvs.height = H * DPR;
-ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+cvs.width = W; cvs.height = H;
 
 function fitScale() {
-  const pad = 8;
-  const s = Math.min((innerWidth - pad) / W, (innerHeight - pad) / H);
+  const viewport=window.visualViewport;
+  const vw=viewport?viewport.width:innerWidth,vh=viewport?viewport.height:innerHeight;
+  const phone=matchMedia('(pointer:coarse)').matches || Math.min(vw,vh)<600;
+  const rotated=phone && vh>vw;
+  document.documentElement.classList.toggle('phone',phone);
+  document.documentElement.classList.toggle('phone-portrait',rotated);
+  const viewW=rotated?vh:vw,viewH=rotated?vw:vh;
+  document.documentElement.style.setProperty('--view-w',viewW+'px');
+  document.documentElement.style.setProperty('--view-h',viewH+'px');
+  const pad = 2 * parseFloat(getComputedStyle(document.getElementById('safeAreaProbe')).width);
+  document.documentElement.classList.toggle('compact',viewW<700);
+  const toolsH = phone ? 0 : 88;
+  const s = Math.max(0.1, Math.min((viewW - pad - (phone ? (viewW<700?158:192) : 0)) / W, (viewH - pad - toolsH) / H));
+  document.documentElement.style.setProperty('--canvas-w',(W*s)+'px');
+  const pixelScale=Math.max(1,(window.devicePixelRatio||1)*s);
+  cvs.width=Math.round(W*pixelScale);cvs.height=Math.round(H*pixelScale);
+  ctx.setTransform(pixelScale,0,0,pixelScale,0,0);
   cvs.style.width = (W * s) + "px";
   cvs.style.height = (H * s) + "px";
 }
-addEventListener("resize", fitScale); fitScale();
+addEventListener("resize", fitScale); if(window.visualViewport) visualViewport.addEventListener("resize",fitScale); fitScale();
 
 const $ = id => document.getElementById(id);
 const clamp = (v, a, b) => v < a ? a : (v > b ? b : v);
@@ -265,7 +441,7 @@ const EVOLVE_AT = [0, 600, 1400, 2600, 4200, 6200, 8600, 11400, 15000];
 const FROG_IMGS = FROG_SRC.map(s => { const i = new Image(); i.src = s; return i; });
 
 function drawSprite(im, x, y, size, rot, alpha) {
-  if (!im.complete || !im.naturalWidth) return false;
+  if (!im || !im.complete || !im.naturalWidth) return false;
   const r = im.naturalWidth / im.naturalHeight;
   const w = r >= 1 ? size : size * r;
   const h = r >= 1 ? size / r : size;
@@ -282,7 +458,7 @@ function drawSprite(im, x, y, size, rot, alpha) {
 let AC = null;
 function audio() { if (!AC) { try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {} } if (AC && AC.state === "suspended") AC.resume(); }
 function beep(f, dur, type, vol) {
-  if (!AC) return;
+  if (!AC || !PROFILE.sound) return;
   try {
     const o = AC.createOscillator(), g = AC.createGain();
     o.type = type || "sine"; o.frequency.value = f;
@@ -293,7 +469,7 @@ function beep(f, dur, type, vol) {
   } catch (e) {}
 }
 function clack(vol) {  // 球与球撞击：短噪声
-  if (!AC) return;
+  if (!AC || !PROFILE.sound) return;
   try {
     const n = AC.sampleRate * 0.04, buf = AC.createBuffer(1, n, AC.sampleRate), d = buf.getChannelData(0);
     for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / n, 2.2);
@@ -318,7 +494,7 @@ const SFX = {
 };
 
 /* ---------------- 场地几何 ---------------- */
-const FELT = { x: 70, y: 95, w: W - 140, h: H - 180 };  // 呢面（随 W/H 自适应）
+const FELT = { x: 70, y: 95, w: 760, h: 380 };     // 呢面
 const RAIL = 24;                                    // 库边宽
 const BALL_R = 13;
 const POCKET_R = 23;
@@ -332,13 +508,153 @@ const FOOT = { x: FELT.x + FELT.w * 0.75, y: FELT.y + FELT.h / 2 };  // 摆球�
 
 const BALL_COLORS = ["#f2c14e", "#6aa8e8", "#e87070", "#a878e0", "#f0924a", "#68c488", "#b05c48", "#443e4a"];
 
+/* ---------------- 奶娃俱乐部 ---------------- */
+function readStore(key, fallback) { try { const v = JSON.parse(localStorage.getItem(key)); return v == null ? fallback : v; } catch(e) { return fallback; } }
+function writeStore(key, value) { try { localStorage.setItem(key, JSON.stringify(value)); } catch(e) { toast("浏览器暂时无法保存，当前游戏仍可继续"); } }
+const rawProfile = readStore("milkyPool.club", {});
+const PROFILE = { pots:0, clears:0, wins:0, combo:0, stars:0, collection:Array(9).fill(0), theme:0, sound:true, guide:true };
+if (rawProfile && typeof rawProfile === "object") {
+  for (const key of ["pots","clears","wins","combo","stars","theme"]) if (Number.isSafeInteger(rawProfile[key]) && rawProfile[key]>=0) PROFILE[key]=rawProfile[key];
+  if (Array.isArray(rawProfile.collection)) PROFILE.collection=PROFILE.collection.map((_,i)=>Number.isSafeInteger(rawProfile.collection[i]) && rawProfile.collection[i]>=0 ? rawProfile.collection[i] : 0);
+  for (const key of ["sound","guide"]) if (typeof rawProfile[key]==="boolean") PROFILE[key]=rawProfile[key];
+}
+const THEMES = [
+  {name:"奶茶小窝",felt:"#efdba2",rail:"#fff0c6",ink:"#765821",need:0},
+  {name:"荷塘奶绿",felt:"#90b9a0",rail:"#e4edcf",ink:"#254e3c",need:12},
+  {name:"草莓奶昔",felt:"#e9b7c2",rail:"#fbe0db",ink:"#6d3649",need:30}
+];
+if (!THEMES[PROFILE.theme] || PROFILE.pots < THEMES[PROFILE.theme].need) PROFILE.theme=0;
+const BADGES = [
+  ["初次见面","亲手送 1 只奶娃回家",()=>PROFILE.pots>=1],
+  ["奶娃接送员","累计送 12 只奶娃回家",()=>PROFILE.pots>=12],
+  ["一杆双响","同一杆进 2 颗彩球",()=>PROFILE.combo>=2],
+  ["干干净净","完成一次闯关清台",()=>PROFILE.clears>=1],
+  ["三颗小星星","获得一次三星清台",()=>PROFILE.stars>=1],
+  ["奶王也服气","赢下一局奶王对战",()=>PROFILE.wins>=1],
+  ["全家福","集齐全部九种奶娃",()=>PROFILE.collection.every(n=>n>0)]
+];
+let toastTimer, practicePreset=0, placingPractice=false, levelStartScore=0, matchEpoch=0, helpState=null;
+let shotRail=false, downAim={dx:1,dy:0}, freeCue=false, placementPreview=null;
+function toast(text) { $("toast").textContent=text; $("toast").classList.add("visible"); clearTimeout(toastTimer); toastTimer=setTimeout(()=>$("toast").classList.remove("visible"),2800); }
+function saveClub() { writeStore("milkyPool.club",PROFILE); }
+function grantPot(b) {
+  if (mode==="practice" || (mode==="versus" && VS.turn!==1) || b.rewarded) return;
+  b.rewarded=true;
+  const before=BADGES.map(b=>b[2]());
+  const index=b.black?8:b.sprite;
+  const fresh=PROFILE.collection[index]===0;
+  PROFILE.collection[index]++; PROFILE.pots++; PROFILE.combo=Math.max(PROFILE.combo,shotPotted);
+  if (fresh) toast("新朋友入住："+FROG_NAMES[index]+"！");
+  else if (PROFILE.pots===12 || PROFILE.pots===30) toast("新球桌解锁："+THEMES[PROFILE.pots===12?1:2].name);
+  BADGES.forEach((badge,i)=>{if(!before[i]&&badge[2]()) addFloat(W/2,130,"荣誉 · "+badge[0],"#397f65");});
+  saveClub();
+}
+function refreshClub() {
+  $("clubSummary").innerHTML='<strong>'+PROFILE.pots+'</strong> 只奶娃已回家<br>图鉴 '+PROFILE.collection.filter(n=>n>0).length+' / 9 · 荣誉 '+BADGES.filter(b=>b[2]()).length+' / '+BADGES.length+'<br>清台 '+PROFILE.clears+' 次 · 最佳一杆 '+PROFILE.combo+' 球';
+  $("themes").replaceChildren();
+  THEMES.forEach((theme,i)=>{const b=document.createElement("button");b.textContent=theme.name+(PROFILE.pots<theme.need?' 🔒':'');b.title=theme.need?'累计送 '+theme.need+' 只奶娃回家解锁':'默认球桌';b.disabled=PROFILE.pots<theme.need;b.setAttribute('aria-pressed',String(PROFILE.theme===i));b.onclick=()=>{PROFILE.theme=i;saveClub();refreshClub();};$("themes").append(b);});
+}
+function refreshCollection() {
+  $("collectionGrid").replaceChildren();
+  FROG_NAMES.forEach((name,i)=>{const card=document.createElement('div');card.className='frog-card'+(PROFILE.collection[i]?'':' locked');const img=document.createElement('img');img.src=FROG_SRC[i];img.alt=name;card.append(img,document.createTextNode(name));const sub=document.createElement('small');sub.textContent=PROFILE.collection[i]?'已接回 '+PROFILE.collection[i]+' 只':'尚未遇见';card.append(sub);$("collectionGrid").append(card);});
+  $("badgeGrid").replaceChildren();
+  BADGES.forEach(b=>{const el=document.createElement('div');el.className='badge'+(b[2]()?' earned':'');el.textContent=(b[2]()?'✦ ':'☆ ')+b[0]+' · '+b[1];$("badgeGrid").append(el);});
+}
+function scheduleBot(fn,ms) { const epoch=matchEpoch;setTimeout(()=>{if(epoch===matchEpoch && mode==='versus' && VS && !VS.over && state!==S.PAUSE) fn();},ms); }
+function isPlayerPlacement() {
+  return state===S.AIM && (mode==='versus' ? !!VS && VS.turn===1 && VS.ballInHand : freeCue || placingPractice);
+}
+function beginFreeCue() {
+  freeCue=true;pulling=false;pull=0;respawnCue(false);cue.potted=true;
+  placementPreview={x:cue.x,y:cue.y};state=S.AIM;
+  toast('白球进袋 → 自由球！点击台面空位重新摆放');
+}
+function placeCueAt(x,y) {
+  if(!isPlayerPlacement() || !vsFreeSpot(x,y)) return false;
+  if(mode==='versus') VS.ballInHand=false;
+  Object.assign(cue,{x,y,vx:0,vy:0,potted:false});
+  freeCue=false;placingPractice=false;placementPreview=null;pulling=false;pull=0;
+  spin={x:0,y:0};spinYLeft=0;spinDot.style.left='50%';spinDot.style.top='50%';
+  $('btnPlace').textContent='自由摆母球';toast('白球摆好啦，瞄准后出杆');return true;
+}
+function ballRestriction(b) {
+  if(mode!=='versus'||!VS||VS.over||!b||b.potted) return null;
+  const mine=VS.groups[1];
+  if(b.black) return !mine||groupRemain(mine)>0 ? '黑八要等己方球清完再打' : null;
+  return mine && groupOf(b)!==mine ? '这是奶王的球，首触会犯规' : null;
+}
+function drawRestrictions() {
+  if(mode!=='versus'||!VS||VS.over) return;
+  const placed=[];const screenScale=parseFloat(cvs.style.width)/W;
+  const fs=clamp(9/screenScale,11,20),tw=fs*2+10,th=fs+7;
+  for(const b of balls) {
+    if(b.potted)continue;
+    if(!ballRestriction(b)) {
+      if(VS.groups[1]) {ctx.save();ctx.strokeStyle=b.black?'#d59b26':'#5e9474';ctx.lineWidth=2.3;ctx.beginPath();ctx.arc(b.x,b.y,BALL_R+3,0,Math.PI*2);ctx.stroke();ctx.restore();}
+      continue;
+    }
+    ctx.save();ctx.strokeStyle='#c65c55';ctx.lineWidth=2;ctx.setLineDash([3,2]);ctx.beginPath();ctx.arc(b.x,b.y,BALL_R+3,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);
+    let label=null;
+    const offsets=[[0,-BALL_R-th-5],[0,BALL_R+7],[-BALL_R-tw/2-8,-th/2],[BALL_R+tw/2+8,-th/2]];
+    for(let ring=0;ring<6;ring++) {
+      for(const [ox,oy] of offsets) {
+        const candidate={x:clamp(b.x+ox-tw/2,FELT.x+4,FELT.x+FELT.w-tw-4),y:clamp(b.y+oy+Math.sign(oy||1)*ring*(th+3),FELT.y+4,FELT.y+FELT.h-th-4),w:tw,h:th};
+        if(placed.some(q=>candidate.x<q.x+q.w+3&&candidate.x+tw+3>q.x&&candidate.y<q.y+q.h+3&&candidate.y+th+3>q.y))continue;
+        if(balls.concat(cue&&!cue.potted?[cue]:[]).some(q=>!q.potted&&q.x+BALL_R+3>candidate.x&&q.x-BALL_R-3<candidate.x+tw&&q.y+BALL_R+3>candidate.y&&q.y-BALL_R-3<candidate.y+th))continue;
+        label=candidate;break;
+      }
+      if(label)break;
+    }
+    if(!label)label={x:clamp(b.x-tw/2,FELT.x+3,FELT.x+FELT.w-tw-3),y:clamp(b.y-BALL_R-th-6,FELT.y+3,FELT.y+FELT.h-th-3),w:tw,h:th};
+    placed.push(label);
+    ctx.strokeStyle='rgba(181,65,58,.65)';ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(b.x,b.y-BALL_R);ctx.lineTo(label.x+tw/2,label.y+th/2);ctx.stroke();
+    ctx.fillStyle='#fff3ee';ctx.strokeStyle='#bd514d';ctx.lineWidth=1.2;roundRect(label.x,label.y,tw,th,th/2);ctx.fill();ctx.stroke();
+    ctx.fillStyle='#a83b38';ctx.font='800 '+fs+'px "Microsoft YaHei",sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('禁打',label.x+tw/2,label.y+th/2);ctx.restore();
+  }
+}
+function drawPlacement() {
+  if(!isPlayerPlacement())return;
+  const p=placementPreview||cue||HEAD;const valid=vsFreeSpot(p.x,p.y);
+  ctx.save();ctx.globalAlpha=.68;drawCue({x:p.x,y:p.y});ctx.globalAlpha=1;
+  ctx.strokeStyle=valid?'#5c9c75':'#c65c55';ctx.lineWidth=2.5;ctx.setLineDash([4,3]);ctx.beginPath();ctx.arc(p.x,p.y,BALL_R+7,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);
+  ctx.font='800 16px "Microsoft YaHei",sans-serif';ctx.textAlign='center';ctx.fillStyle=valid?'#426c49':'#a83b38';ctx.fillText(valid?'点此放白球':'这里放不下',clamp(p.x,FELT.x+60,FELT.x+FELT.w-60),clamp(p.y+BALL_R+32,FELT.y+30,FELT.y+FELT.h-8));ctx.restore();
+}
+function resetShot() { clearTimeout(toastTimer);$('toast').classList.remove('visible');freeCue=false;placementPreview=null; pulling=false;pull=0;spin={x:0,y:0};spinYLeft=0;firstHit=null;firstContact=false;shotPotted=0;shotRail=false;strikeT=0;aim={dx:1,dy:0};spinDot.style.left='50%';spinDot.style.top='50%';danmaku=[];floats=[];rings=[];sinkAnims=[];rescueFrogs=[]; }
+function startPractice(preset) {
+  matchEpoch++; mode='practice'; VS=null; practicePreset=+preset; placingPractice=false; $("btnPlace").textContent="自由摆母球"; score=0;shots=0;stage=1;streak=0;rescued=0; resetShot();
+  const layouts=[[[450,190]],[[500,230],[630,350]],[[500,285]],[[440,170],[560,230],[690,160],[420,350],[600,390],[730,330]]];
+  balls=layouts[practicePreset].map((xy,i)=>mkBall(xy[0],xy[1],i===0?1:i,false));
+  cue={x:practicePreset===0?450:230,y:practicePreset===0?365:285,vx:0,vy:0,cue:true,potted:false};
+  par=balls.length+2;state=S.AIM;showDlg(null);toast(['直线练习：轻轻推，把奶娃送进上方中袋','切球练习：橙线朝袋口，母球瞄准接触点','借库练习：尝试先碰上库，再接近奶娃','自由清台：慢慢练，不限杆数'][practicePreset]);
+}
+function updateTools() {
+  const player=state===S.AIM && cue && !cue.potted && (mode!=='versus'||(VS && VS.turn===1 && !VS.ballInHand)) && !placingPractice && !freeCue;
+  $("btnFineLeft").disabled=!player;$("btnFineRight").disabled=!player;
+  $("btnShoot").disabled=!player;$("powerRange").disabled=!player;
+  $("btnPlace").hidden=mode!=='practice';$("btnPlace").disabled=state!==S.AIM;
+  $("btnGuide").textContent='辅助：'+(PROFILE.guide?'开':'关');$("btnGuide").setAttribute('aria-pressed',String(PROFILE.guide));
+  $("btnSound").textContent='音效：'+(PROFILE.sound?'开':'关');$("btnSound").setAttribute('aria-pressed',String(PROFILE.sound));
+  $("clubCounter").textContent='奶娃小窝 · '+PROFILE.collection.filter(n=>n>0).length+'/9';
+  let line='奶娃陪你慢慢练，瞄准后拉杆，或调奶力点出杆。';
+  if(state===S.ROLL) line='奶娃：球还在跑，等它停稳再出杆。';
+  else if(mode==='versus' && VS) line=VS.ballInHand?(VS.turn===1?'奶娃：你获得自由球，点击空位放母球。':'奶王正在摆放自由球。'):(VS.turn===2?'奶王正在思考，这一杆先看它发挥。':VS.groups[1]?'奶娃：先清完'+(VS.groups[1]==='A'?'实色 1–7':'条纹 9–15')+'，最后送黑 8 回家。':'奶娃：首次合法进球决定实色或条纹分组。');
+  else if(mode==='practice') line=placingPractice?'奶娃：点击台面空位摆母球；再点按钮可取消。':'奶娃陪练 · '+['直线入袋','切球练习','借库练习','自由清台'][practicePreset]+' · '+shots+' 杆 · 不限次数，放轻松。';
+  else if(balls.length && balls.filter(b=>!b.potted).every(b=>b.black)) line='奶娃：彩球接齐啦，现在可以送奶蛙神回家！';
+  let warning=false;
+  if(isPlayerPlacement()) line='自由球！点击台面空位摆白球，摆好后就能继续出杆。';
+  else if(state===S.AIM && cue && !cue.potted && mode==='versus' && VS.turn===1) {const target=castGuide(cue.x,cue.y,aim.dx,aim.dy).ball;const reason=ballRestriction(target);if(reason){warning=true;line='禁打！'+(target.black?'黑八':target.num+' 号球')+'：'+reason+'。';}}
+  $('coachText').classList.toggle('warning',warning);$('coachText').classList.toggle('placement',isPlayerPlacement());
+  setMood('coachFace',isPlayerPlacement()?'sad':mode==='versus'&&VS.turn===2?'think':state===S.LEVEL?'laugh':'idle');
+  if($("coachText").textContent!==line) $("coachText").textContent=line;
+}
+
 /* ---------------- 存档 ---------------- */
 const best = { v: 0 };
-let BEST = +(localStorage.getItem("milkyPool.best") || 0);
-let BEST_LV = +(localStorage.getItem("milkyPool.bestLevel") || 1);
+let BEST = Number(readStore("milkyPool.best",0)) || 0;
+let BEST_LV = Math.max(1,Number(readStore("milkyPool.bestLevel",1)) || 1);
 let BOARD = (function () { try { const a = JSON.parse(localStorage.getItem("milkyPool.board") || "[]"); return Array.isArray(a) ? a : []; } catch (e) { return []; } })();
 let PROGRESS = (function () { try { const p = JSON.parse(localStorage.getItem("milkyPool.progress") || "null"); if (p && p.level >= 1) return p; } catch (e) {} return null; })();
-function saveBoard() { localStorage.setItem("milkyPool.board", JSON.stringify(BOARD)); }
+function saveBoard() { writeStore("milkyPool.board",BOARD); }
 function recordBoard() {
   const d = new Date();
   const entry = { s: score, l: level, d: (d.getMonth() + 1) + "-" + d.getDate() };
@@ -350,7 +666,7 @@ function recordBoard() {
 }
 function hasProgress() { return !!PROGRESS && PROGRESS.level > 1; }
 function saveProgress() {
-  PROGRESS = { level: level, score: score, t: Date.now() };
+  PROGRESS = { level: level, score: levelStartScore, t: Date.now() };
   try { localStorage.setItem("milkyPool.progress", JSON.stringify(PROGRESS)); } catch (e) {}
 }
 function clearProgress() { PROGRESS = null; try { localStorage.removeItem("milkyPool.progress"); } catch (e) {} }
@@ -359,7 +675,7 @@ function clearProgress() { PROGRESS = null; try { localStorage.removeItem("milky
 const S = { MENU: 0, AIM: 1, ROLL: 2, LEVEL: 3, OVER: 4, PAUSE: 5, VS_END: 6 };
 let mode = "levels";                      // levels 关卡制 | versus 对战制
 let VS = null;                            // 对战状态对象
-let VS_RECORD = (function(){ try { return JSON.parse(localStorage.getItem("milkyPool.vs") || "{\"w\":0,\"l\":0}"); } catch(e){ return {w:0,l:0}; } })();
+let VS_RECORD = readStore("milkyPool.vs",{});VS_RECORD={w:Number.isSafeInteger(VS_RECORD?.w)&&VS_RECORD.w>=0?VS_RECORD.w:0,l:Number.isSafeInteger(VS_RECORD?.l)&&VS_RECORD.l>=0?VS_RECORD.l:0};
 let state = S.MENU;
 let balls = [];            // {x,y,vx,vy,i(0-7颜色),sprite,black,potted,sink}
 let cue = null;            // 母球（奶珠）
@@ -378,7 +694,7 @@ let sinkAnims = [];        // 球落袋动画
 const MEME = [
   "袋口在招手！", "这杆有点妖", "齁齁齁齁~", "解救奶蛙！", "稳住，能进",
   "嗖——进了！", "一杆清台预定", "蚌埠住了", "尊嘟假嘟？", "泰裤辣！",
-  "city不city", "奶力全开", "蛙门永存", "太抽象辣", "奶蛙yyds", "666",
+  "今天也是软乎乎的一天", "奶力全开", "蛙门永存", "太抽象辣", "奶蛙最棒啦", "666",
 ];
 const SAD = ["寄！", "下次一定！", "蛙生无常", "母球你干啥去了", "袋口笑而不语"];
 function spawnDanmaku(txt, big) {
@@ -449,13 +765,14 @@ function layout(lv) {
 }
 
 function startLevel(lv) {
+  matchEpoch++; mode="levels"; VS=null; placingPractice=false; resetShot(); levelStartScore=score;
   level = lv; endless = lv > 5;
   balls = layout(lv);
   par = balls.length + 2;
   shots = 0; shotPotted = 0; firstContact = false;
   rescueFrogs = []; sinkAnims = []; floats = [];
   respawnCue(true);
-  if (level > BEST_LV) { BEST_LV = level; localStorage.setItem("milkyPool.bestLevel", BEST_LV); }
+  if (level > BEST_LV) { BEST_LV = level; writeStore("milkyPool.bestLevel", BEST_LV); }
   saveProgress();
 }
 function respawnCue(fresh) {
@@ -464,6 +781,9 @@ function respawnCue(fresh) {
   let t = 0;
   while (!freeSpot(balls.filter(b => !b.potted), x, y, BALL_R * 2 + 2) && t++ < 80) {
     x -= 6; if (x < FELT.x + BALL_R + 12) { x = HEAD.x; y += 18 * (t % 2 ? 1 : -1); }
+  }
+  if(!freeSpot(balls.filter(b=>!b.potted),x,y,BALL_R*2+2)) {
+    outer:for(let yy=FELT.y+40;yy<FELT.y+FELT.h-30;yy+=30) for(let xx=FELT.x+40;xx<FELT.x+FELT.w-30;xx+=30) if(freeSpot(balls.filter(b=>!b.potted),xx,yy,BALL_R*2+2)){x=xx;y=yy;break outer;}
   }
   cue = { x, y, vx: 0, vy: 0, cue: true, potted: false };
 }
@@ -477,13 +797,13 @@ function nearPocketMouth(x, y) {
   return false;
 }
 function potBall(b) {
-  b.potted = true;
+  b.potted = true;b.vx=0;b.vy=0;
   const p = nearestPocket(b.x, b.y);
-  sinkAnims.push({ x: b.x, y: b.y, t: 0, black: b.black, sprite: b.sprite });
+  sinkAnims.push({ x: b.x, y: b.y, t: 0, black: b.black, sprite: b.cue ? 1 : b.sprite, cue:!!b.cue });
   if (b.cue) {
-    if (mode !== "versus") shots += 2;
+    // 白球落袋转自由球，不增加额外罚杆。
     streak = 0;
-    spawnDanmaku(mode === "versus" ? "母球跳河！犯规～" : "母球跳河！+2 杆", true);
+    spawnDanmaku(mode === "versus" ? "白球进袋，对手获得自由球" : "白球进袋，点击台面摆自由球", true);
     spawnDanmaku(SAD[Math.floor(Math.random() * SAD.length)], false);
     SFX.foul();
   } else {
@@ -491,14 +811,16 @@ function potBall(b) {
     rescued++;
     shotPotted++;
     const gain = 100 + (shotPotted - 1) * 60;
-    score += gain;
+    const earlyGod = b.black && mode==="levels" && balls.some(o=>!o.black&&!o.potted);
+    if (!earlyGod) grantPot(b);
+    if (!earlyGod) score += gain;
     addFloat(p.x, p.y - 26, "+" + gain);
     rescueFrogs.push({ x: p.x, y: p.y, vx: rand(40, 110) * (p.x > FELT.x + FELT.w / 2 ? -1 : 1), vy: rand(-330, -240), rot: 0, vr: rand(-4, 4), t: 0, sprite: b.sprite });
     rings.push({ x: p.x, y: p.y, t: 0, life: 0.4, max: 30, color: "#f2c14e" });
     SFX.pocket();
     if (Math.random() < 0.3) spawnDanmaku(MEME[Math.floor(Math.random() * MEME.length)]);
     if (shotPotted >= 2) { spawnDanmaku("齁齁齁齁~ 狂笑时刻！", true); SFX.laugh(); shake = 9; }
-    if (b.black) {
+    if (b.black && mode === "levels") {
       if (balls.some(o => !o.cue && !o.black && !o.potted)) {
         // 奶蛙神提前进袋：罚 2 杆重摆
         shots += 2; streak = 0;
@@ -568,6 +890,7 @@ function stepPhysics(dt) {
       if (b.y < FELT.y + BALL_R) { b.y = FELT.y + BALL_R; b.vy = -b.vy * REST_CUSH; hit = true; }
       else if (b.y > FELT.y + FELT.h - BALL_R) { b.y = FELT.y + FELT.h - BALL_R; b.vy = -b.vy * REST_CUSH; hit = true; }
       if (hit) {
+        if (firstContact) shotRail=true;
         SFX.cushion();
         if (b.cue && spin.x !== 0) {  // 左右塞影响库边反弹
           if (b.vx === 0) b.vy += spin.x * 130 * (b.vy > 0 ? 1 : -1);
@@ -584,6 +907,7 @@ function stepPhysics(dt) {
   // 球间碰撞（等质量弹性）
   for (let i = 0; i < live.length; i++) for (let j = i + 1; j < live.length; j++) {
     const a = live[i], b = live[j];
+    if (a.potted || b.potted) continue;
     const dx = b.x - a.x, dy = b.y - a.y;
     const d = Math.hypot(dx, dy);
     if (d === 0 || d >= BALL_R * 2) continue;
@@ -639,11 +963,13 @@ function castGuide(px, py, dx, dy) {
 }
 
 function shoot() {
+  if(state!==S.AIM || !cue || cue.potted || isPlayerPlacement()) return;
   const speed = 280 + (pull / 190) * 1250;
   cuePreDir = { x: aim.dx, y: aim.dy };
   spinYLeft = spin.y;
   cue.vx = aim.dx * speed; cue.vy = aim.dy * speed;
-  shots++; shotPotted = 0; firstContact = false; firstHit = null; vsPotted = [];
+  if(mode==="versus") VS.shotGroupRemaining=VS.groups[VS.turn]?groupRemain(VS.groups[VS.turn]):null;
+  shots++; shotPotted = 0; firstContact = false; firstHit = null; vsPotted = []; shotRail=false;
   pulling = false;
   strikeT = 0.1; strikePull = pull; strikeDir = { x: aim.dx, y: aim.dy };
   pull = 0;
@@ -654,21 +980,23 @@ function shoot() {
 /* ---------------- 输入 ---------------- */
 function canvasPos(e) {
   const r = cvs.getBoundingClientRect();
+  if(document.documentElement.classList.contains("phone-portrait")) return {x:(e.clientY-r.top)/r.height*W,y:(r.right-e.clientX)/r.width*H};
   return { x: (e.clientX - r.left) / r.width * W, y: (e.clientY - r.top) / r.height * H };
 }
 cvs.addEventListener("pointermove", e => {
   const p = canvasPos(e);
-  if (state !== S.AIM || !cue || cue.potted) return;
+  if(isPlayerPlacement()){placementPreview=p;return;}
+  if (state !== S.AIM || !cue || cue.potted || placingPractice || (mode==="versus" && (!VS || VS.turn!==1 || VS.ballInHand))) return;
   if (pulling) {
     // 蓄力与瞄准解耦：沿已锁定杆向投影算拉距，横移量微调方向（不跳变）
-    const bx = -(aim.dx), by = -(aim.dy);            // 杆向后方向
+    const bx = -downAim.dx, by = -downAim.dy;            // 杆向后方向
     const proj = (p.x - downPt.x) * bx + (p.y - downPt.y) * by;
     pull = clamp(downPull + proj, 0, 190);
     const side = (p.x - downPt.x) * (-by) + (p.y - downPt.y) * bx;
     const sideN = side / 3.2;
-    if (Math.abs(sideN) > 0.5) {
+    {
       const c = Math.cos(sideN / 140), s = Math.sin(sideN / 140);
-      const ndx = aim.dx * c - aim.dy * s, ndy = aim.dx * s + aim.dy * c;
+      const ndx = downAim.dx * c - downAim.dy * s, ndy = downAim.dx * s + downAim.dy * c;
       aim.dx = ndx; aim.dy = ndy;
     }
   } else {
@@ -678,22 +1006,16 @@ cvs.addEventListener("pointermove", e => {
 });
 cvs.addEventListener("pointerdown", e => {
   audio();
-  if (mode === "versus") {
-    if (!VS || VS.over || VS.turn !== 1) return;   // AI 回合锁输入
-    if (VS.ballInHand) {
-      const p = canvasPos(e);
-      if (vsFreeSpot(p.x, p.y)) {
-        VS.ballInHand = false;
-        cue.x = p.x; cue.y = p.y; cue.vx = 0; cue.vy = 0; cue.potted = false;
-        SFX.clack(0.2);
-        spawnDanmaku("自由球放置完成", true);
-      } else spawnDanmaku("这里放不下，换个位置", false);
-      return;
-    }
+  if (state!==S.AIM) return;
+  if(isPlayerPlacement()) {
+    const p=canvasPos(e);if(!placeCueAt(p.x,p.y))toast('这里放不下，选一个远离球和袋口的空位');return;
   }
+  if(mode==='versus' && (!VS||VS.over||VS.turn!==1)) return;
   if (state !== S.AIM || !cue || cue.potted) return;
   downPt = canvasPos(e);
-  downPull = pull;
+  const d=dist(downPt.x,downPt.y,cue.x,cue.y);
+  if(d>4){aim.dx=(downPt.x-cue.x)/d;aim.dy=(downPt.y-cue.y)/d;}
+  downAim={...aim};downPull = pull;
   pulling = true;
   cvs.setPointerCapture(e.pointerId);
 });
@@ -703,13 +1025,17 @@ cvs.addEventListener("pointerup", () => {
   if (pull > 16) shoot(); else pull = 0;
 });
 
+cvs.addEventListener("pointercancel",()=>{pulling=false;pull=0;});
+cvs.addEventListener("lostpointercapture",()=>{if(pulling){pulling=false;pull=0;}});
 /* 加塞盘 */
 const spinPad = $("spinPad"), spinDot = $("spinDot"), spinTip = $("spinTip");
 let spinDrag = false;
 function setSpinFromEvent(e) {
+  if(state!==S.AIM || isPlayerPlacement() || (mode==="versus" && VS.turn!==1)) return;
   const r = spinPad.getBoundingClientRect();
   let nx = (e.clientX - r.left) / r.width - 0.5;
   let ny = (e.clientY - r.top) / r.height - 0.5;
+  if(document.documentElement.classList.contains('phone-portrait')){nx=(e.clientY-r.top)/r.height-.5;ny=(r.right-e.clientX)/r.width-.5;}
   const d = Math.hypot(nx, ny);
   if (d > 0.38) { nx = nx / d * 0.38; ny = ny / d * 0.38; }
   if (d < 0.1) { nx = 0; ny = 0; }  // 点中间复位
@@ -720,6 +1046,7 @@ function setSpinFromEvent(e) {
 spinPad.addEventListener("pointerdown", e => { e.stopPropagation(); audio(); spinDrag = true; setSpinFromEvent(e); spinPad.setPointerCapture(e.pointerId); });
 spinPad.addEventListener("pointermove", e => { if (spinDrag) { e.stopPropagation(); setSpinFromEvent(e); } });
 spinPad.addEventListener("pointerup", e => { spinDrag = false; });
+spinPad.addEventListener("pointercancel",()=>{spinDrag=false;});
 
 /* ---------------- 主循环 ---------------- */
 let last = performance.now(), acc = 0;
@@ -766,24 +1093,22 @@ function loop(now) {
 let vsPotted = [];   // 本杆落袋的彩球
 const VS_DIFF = [{ name: "随手", err: 0.085, powMin: 0.5 }, { name: "老练", err: 0.032, powMin: 0.55 }, { name: "大师", err: 0.012, powMin: 0.6 }];
 
-function groupOf(b) { return b.i < 4 ? "A" : "B"; }
+function groupOf(b) { return b.black ? null : (b.num <= 7 ? "A" : "B"); }
 function groupRemain(g) { return balls.filter(b => !b.potted && !b.black && !b.cue && groupOf(b) === g).length; }
 
 function startVersus(diff) {
-  mode = "versus";
+  matchEpoch++; resetShot(); mode = "versus"; placingPractice=false;
   vsPotted = [];
   score = 0; shots = 0; stage = 0; streak = 0; rescued = 0;
-  VS = { turn: 1, groups: { 1: null, 2: null }, ballInHand: false, diff: diff || 1, over: false };
-  // 摆 8 球：1-7 号 + 黑 8（黑 8 在第四排右，经典位）
-  balls = [];
-  const fx = FOOT.x, fy = FOOT.y, sp = BALL_R * 2 + 0.6;
-  const tri = [[0, 0], [-0.9, -0.5], [-0.9, 0.5], [-1.8, -1], [-1.8, 0], [-1.8, 1], [-2.7, -0.5], [-2.7, 0.5]];
-  const idx = [0, 1, 2, 3, 4, 5, 6];
-  for (let i = idx.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [idx[i], idx[j]] = [idx[j], idx[i]]; }
-  tri.forEach((t, k) => {
-    if (k === 7) balls.push(mkBall(fx + t[0] * sp, fy + t[1] * sp, 8, true));  // 黑 8
-    else balls.push(mkBall(fx + t[0] * sp, fy + t[1] * sp, idx[k] + 1, false)); // 1-7 号随机
-  });
+  VS = { turn: 1, groups: { 1: null, 2: null }, ballInHand: false, diff: diff ?? 1, over: false };
+  // 十五球三角阵：黑 8 在第三排中央，两后角分属不同组。
+  balls=[];
+  const nums=[1,2,9,3,8,10,4,11,5,12,6,13,14,15,7];
+  let k=0;
+  for(let row=0;row<5;row++) for(let col=0;col<=row;col++) {
+    const num=nums[k++];const b=mkBall(FOOT.x+row*(BALL_R*2+0.6)*Math.sqrt(3)/2, FOOT.y+(col-row/2)*(BALL_R*2+0.6),(num-1)%7,num===8);
+    b.num=num; b.sprite=num===8?8:(num-1)%8;balls.push(b);
+  }
   respawnCue(true);
   state = S.AIM;
   showDlg(null);
@@ -800,16 +1125,16 @@ function vsEnd(playerWin, reason) {
   if (VS.over) return;
   VS.over = true;
   state = S.VS_END;
-  if (playerWin) VS_RECORD.w++; else VS_RECORD.l++;
+  if (playerWin) { VS_RECORD.w++; PROFILE.wins++; saveClub(); } else VS_RECORD.l++;
   try { localStorage.setItem("milkyPool.vs", JSON.stringify(VS_RECORD)); } catch (e) {}
   $("vsIcon").textContent = playerWin ? "🏆" : "🐸💤";
-  $("vsTitle").textContent = playerWin ? "胜利！你赢了 AI 奶王" : "惜败…AI 奶王笑了";
+  $("vsTitle").textContent = playerWin ? "胜利！你赢了奶王" : "惜败…奶王笑了";
   $("vsReason").textContent = reason;
   $("vsRecord").textContent = VS_RECORD.w + " 胜 " + VS_RECORD.l + " 负";
   SFX.win();
-  setTimeout(() => { playerWin ? SFX.laugh() : SFX.foul(); }, 600);
+  const epoch=matchEpoch;setTimeout(() => { if(epoch===matchEpoch) playerWin ? SFX.laugh() : SFX.foul(); }, 600);
   showDlg("dlgVs");
-  spawnDanmaku(playerWin ? "蛙哈哈！赢啦！" : "AI 奶王：下次再来～", true);
+  spawnDanmaku(playerWin ? "蛙哈哈！赢啦！" : "奶王：下次再来～", true);
 }
 
 function resolveVersus() {
@@ -821,17 +1146,18 @@ function resolveVersus() {
 
   // 黑 8 结算
   if (eight) {
-    const cleared = myGroup && groupRemain(myGroup) === 0;
-    if (cleared && !scratched) return vsEnd(me === 1, me === 1 ? "你把黑 8 送进了袋口" : "AI 清完组后合法打进黑 8");
+    const cleared = myGroup && groupRemain(myGroup) === 0 && VS.shotGroupRemaining===0;
+    const legalFirst=firstHit && (firstHit.black || (groupOf(firstHit)===myGroup && vsPotted.includes(firstHit)));
+    if (cleared && !scratched && legalFirst) return vsEnd(me === 1, me === 1 ? "你把黑 8 送进了袋口" : "奶王清完组后合法打进黑 8");
     return vsEnd(me === 2, scratched ? "打进黑 8 时母球落袋" : "还没清完己方球就进了黑 8");
   }
 
   // 首颗彩球定组
-  if (!VS.groups[1] && vsPotted.length > 0) {
+  if (!VS.groups[1] && vsPotted.length > 0 && !scratched && firstHit && !firstHit.black) {
     const first = vsPotted[0];
     VS.groups[me] = groupOf(first);
     VS.groups[other] = groupOf(first) === "A" ? "B" : "A";
-    spawnDanmaku(me === 1 ? "你的分组：" + (VS.groups[1] === "A" ? "小蛙组 1-4" : "大蛙组 5-7") : "AI 分组：" + (VS.groups[2] === "A" ? "小蛙组 1-4" : "大蛙组 5-7"), true);
+    spawnDanmaku(me === 1 ? "你的分组：" + (VS.groups[1] === "A" ? "实色组 1–7" : "条纹组 9–15") : "奶王分组：" + (VS.groups[2] === "A" ? "实色组 1–7" : "条纹组 9–15"), true);
   }
 
   const mg = VS.groups[me];
@@ -839,11 +1165,12 @@ function resolveVersus() {
   let foul = "", skip = false;
   if (scratched) foul = "母球落袋";
   else if (!firstHit) foul = "空杆没碰到球";
-  else if (mg) {
-    if (firstHit.black && groupRemain(mg) > 0) foul = "还没清完就先打黑 8";
-    else if (groupOf(firstHit) !== mg) foul = "首触了对方的球";
+  else if (myGroup) {
+    if (firstHit.black && VS.shotGroupRemaining > 0) foul = "还没清完就先打黑 8";
+    else if (!firstHit.black && groupOf(firstHit) !== myGroup) foul = "首触了对方的球";
   } else if (firstHit && firstHit.black) foul = "首触黑 8（未定组）";
 
+  if (!foul && !vsPotted.length && !shotRail) foul="接触后没有球碰库或进袋";
   const pottedOwn = mg ? vsPotted.some(b => groupOf(b) === mg) : vsPotted.length > 0;
   vsPotted = [];
 
@@ -851,21 +1178,21 @@ function resolveVersus() {
     spawnDanmaku("犯规：" + foul, true);
     VS.turn = other;
     VS.ballInHand = true;
-    if (scratched) { cue.potted = false; respawnCue(false); cue.potted = true; /* 先藏起来等放球 */ }
+    cue.vx=0;cue.vy=0;cue.potted=true;pulling=false;pull=0;placementPreview={x:HEAD.x,y:HEAD.y};
     if (VS.turn === 1) {
-      spawnDanmaku("你获得自由球：点击台面放母球", false);
+      toast("你获得自由球！点击台面空位摆白球");
       state = S.AIM;   // 玩家放球状态
     } else {
-      setTimeout(botTakeTurn, 900);
+      scheduleBot(botTakeTurn, 900);
     }
     return;
   }
 
   if (!pottedOwn) {
     VS.turn = other;
-    spawnDanmaku(me === 1 ? "没进球，换 AI 奶王" : "AI 没进，轮到你", false);
+    spawnDanmaku(me === 1 ? "没进球，换奶王" : "奶王没进，轮到你", false);
   }
-  if (VS.turn === 2 && !VS.over) setTimeout(botTakeTurn, 800);
+  if (VS.turn === 2 && !VS.over) scheduleBot(botTakeTurn, 800);
 }
 
 function botTakeTurn() {
@@ -874,32 +1201,42 @@ function botTakeTurn() {
   if (VS.ballInHand) {
     VS.ballInHand = false;
     let bx = HEAD.x, by = HEAD.y;
-    if (!vsFreeSpot(bx, by)) { bx = FELT.x + FELT.w * 0.3; by = FELT.y + FELT.h * 0.5; }
+    if (!vsFreeSpot(bx, by)) { respawnCue(false);bx=cue.x;by=cue.y; }
     cue.x = bx; cue.y = by; cue.vx = 0; cue.vy = 0; cue.potted = false;
-    spawnDanmaku("AI 放置了自由球", false);
+    spawnDanmaku("奶王放置了自由球", false);
   }
   // 选目标：己方组剩余 → 黑 8
   const mg = VS.groups[2];
   let targets = balls.filter(b => !b.potted && !b.black && !b.cue && (!mg || groupOf(b) === mg));
   if (!targets.length) targets = balls.filter(b => !b.potted && b.black);
   if (!targets.length) return;
-  const target = targets[Math.floor(Math.random() * targets.length)];
-  // 幽灵球瞄准：目标球到最近袋方向后方 2R
-  let bestP = POCKETS[0], bestD = Infinity;
-  for (const p of POCKETS) { const d = dist(target.x, target.y, p.x, p.y); if (d < bestD) { bestD = d; bestP = p; } }
-  const gx = target.x + (target.x - bestP.x) / (bestD || 1) * BALL_R * 2;
-  const gy = target.y + (target.y - bestP.y) / (bestD || 1) * BALL_R * 2;
+  function pathClear(ax,ay,bx,by,ignored,radius) {
+    const dx=bx-ax,dy=by-ay,l2=dx*dx+dy*dy;
+    return balls.every(b=>{if(b.potted||ignored.includes(b))return true;const t=clamp(((b.x-ax)*dx+(b.y-ay)*dy)/(l2||1),0,1);return dist(b.x,b.y,ax+t*dx,ay+t*dy)>radius;});
+  }
+  let plan=null;
+  for(const target of targets) for(const pocket of POCKETS) {
+    const d=dist(target.x,target.y,pocket.x,pocket.y),nx=(pocket.x-target.x)/d,ny=(pocket.y-target.y)/d;
+    const gx=target.x-nx*BALL_R*2,gy=target.y-ny*BALL_R*2;
+    if(gx<FELT.x+BALL_R||gx>FELT.x+FELT.w-BALL_R||gy<FELT.y+BALL_R||gy>FELT.y+FELT.h-BALL_R)continue;
+    const cd=dist(cue.x,cue.y,gx,gy);const cut=((gx-cue.x)*nx+(gy-cue.y)*ny)/(cd||1);
+    if(cut<.2||!pathClear(cue.x,cue.y,gx,gy,[target],BALL_R*2+.5)||!pathClear(target.x,target.y,pocket.x,pocket.y,[target],BALL_R*2+.5))continue;
+    const cost=cd+d+350*(1-cut);if(!plan||cost<plan.cost)plan={gx,gy,cd,d,cost};
+  }
+  const target=targets.reduce((a,b)=>dist(cue.x,cue.y,a.x,a.y)<dist(cue.x,cue.y,b.x,b.y)?a:b);
+  const gx=plan?plan.gx:target.x,gy=plan?plan.gy:target.y;
   const cfg = VS_DIFF[VS.diff] || VS_DIFF[1];
   const ang = Math.atan2(gy - cue.y, gx - cue.x) + rand(-cfg.err, cfg.err);
+  const power=plan?clamp((plan.cd+plan.d)*.00085+.15,.2,.8):cfg.powMin;
   // 演出：瞄准 → 蓄力 → 出杆
   state = S.AIM;
   aim.dx = Math.cos(ang); aim.dy = Math.sin(ang);
   pull = 0;
-  spawnDanmaku("AI 奶王瞄准中…", false);
-  setTimeout(() => {
+  spawnDanmaku("奶王瞄准中…", false);
+  scheduleBot(() => {
     if (mode !== "versus" || !VS || VS.turn !== 2 || VS.over) return;
-    pull = 190 * Math.min(1, cfg.powMin + Math.random() * 0.35);
-    setTimeout(() => {
+    pull = 190 * clamp(power + rand(-cfg.err,cfg.err),.15,.9);
+    scheduleBot(() => {
       if (mode !== "versus" || !VS || VS.turn !== 2 || VS.over) return;
       shoot();
     }, 420);
@@ -907,8 +1244,12 @@ function botTakeTurn() {
 }
 
 function endShot() {
-  if (mode === "versus") { resolveVersus(); return; }
-  if (cue.potted) { respawnCue(false); }
+  if (mode === "versus") { state=S.AIM; resolveVersus(); return; }
+  if (mode === "practice") {
+    if(balls.every(b=>b.potted)){state=S.LEVEL;$('lvStars').textContent='✦ 奶娃陪练完成 ✦';$('lvShots').textContent=shots;$('lvPar').textContent=par;$('lvBonus').textContent='练习不计分';$('lvScore').textContent=score;$('lvSaved').textContent='闯关存档保持原样';$('btnNext').textContent='再练一次 →';showDlg('dlgLevel');return;}
+    if(cue.potted){beginFreeCue();return;}state=S.AIM;return;
+  }
+  if(cue.potted && balls.some(b=>!b.potted)){beginFreeCue();return;}
   if (shotPotted === 0) streak = 0; else streak++;
   // 清台判定
   const left = balls.filter(b => !b.potted).length;
@@ -926,7 +1267,9 @@ function levelClear() {
   $("lvPar").textContent = par;
   $("lvBonus").textContent = "+" + bonus;
   $("lvScore").textContent = score;
-  saveProgress();
+  PROFILE.clears++; if(stars===3) PROFILE.stars++;saveClub();
+  PROGRESS={level:level+1,score:score,t:Date.now()};writeStore("milkyPool.progress",PROGRESS);
+  $("btnNext").textContent="下一关 →";
   $("lvSaved").textContent = "进度已保存 · 下次从第 " + (level + 1) + " 关继续";
   state = S.LEVEL;
   showDlg("dlgLevel");
@@ -936,7 +1279,7 @@ function levelClear() {
 /* ---------------- 渲染 ---------------- */
 function render() {
   ctx.save();
-  if (shake > 0) ctx.translate(rand(-shake, shake) * 0.5, rand(-shake, shake) * 0.5);
+  if (shake > 0 && !matchMedia("(prefers-reduced-motion:reduce)").matches) ctx.translate(rand(-shake, shake) * 0.5, rand(-shake, shake) * 0.5);
 
   // 背景（奶油底）
   ctx.fillStyle = "#fff3e0";
@@ -944,6 +1287,7 @@ function render() {
 
   // HUD
   drawHUD();
+  updateTools();
 
   // 球桌
   drawTable();
@@ -964,10 +1308,11 @@ function render() {
 
   // 球
   for (const b of balls) if (!b.potted) drawBall(b);
-  if (cue && !cue.potted) drawCue(cue);
+  if (cue && !cue.potted && !isPlayerPlacement()) drawCue(cue);
+  drawRestrictions();drawPlacement();
 
   // 出杆
-  if ((state === S.AIM || strikeT > 0) && cue && !cue.potted) drawCueStick();
+  if ((state === S.AIM || strikeT > 0) && cue && !cue.potted && !isPlayerPlacement()) drawCueStick();
 
   // 奶波涟漪
   rings.forEach(r => {
@@ -1020,19 +1365,22 @@ function drawHUD() {
   ctx.textAlign = "left";
   ctx.fillStyle = "#8a7350";
   ctx.font = "700 17px 'PingFang SC','Microsoft YaHei',sans-serif";
-  if (mode === "versus" && VS) {
+  if(mode==='practice') {
+    ctx.fillText('奶娃陪练 · '+['直线入袋','切球练习','借库练习','自由清台'][practicePreset],20,34);
+    ctx.font="600 13px 'Microsoft YaHei',sans-serif";ctx.fillStyle='#70816c';ctx.fillText('杆数 '+shots+' · 还在等你的奶娃 '+balls.filter(b=>!b.potted).length+' 只',20,56);
+  } else if (mode === "versus" && VS) {
     // 对战模式 HUD：轮次 + 分组
     const g1 = VS.groups[1], g2 = VS.groups[2];
-    const name1 = "你（" + (g1 ? (g1 === "A" ? "小蛙组 1-4" : "大蛙组 5-7") : "未定组") + "）";
-    const name2 = "AI 奶王（" + (g2 ? (g2 === "A" ? "小蛙组 1-4" : "大蛙组 5-7") : "未定组") + "）";
-    ctx.fillText(VS.turn === 1 ? "轮到你出杆" : "AI 奶王思考中…", 20, 34);
+    const name1 = "你（" + (g1 ? (g1 === "A" ? "实色组 1–7" : "条纹组 9–15") : "未定组") + "）";
+    const name2 = "奶王（" + (g2 ? (g2 === "A" ? "实色组 1–7" : "条纹组 9–15") : "未定组") + "）";
+    ctx.fillText(VS.turn === 1 ? "轮到你出杆" : "奶王思考中…", 20, 34);
     ctx.fillStyle = VS.turn === 1 ? "#e8963c" : "#6aa8e8";
     ctx.font = "600 13px 'PingFang SC','Microsoft YaHei',sans-serif";
     ctx.fillText(VS.turn === 1 ? name1 : name2, 20, 56);
-    const left1 = VS.groups[1] ? groupRemain(VS.groups[1]) : 4, left2 = VS.groups[2] ? groupRemain(VS.groups[2]) : 4;
+    const left1 = VS.groups[1] ? groupRemain(VS.groups[1]) : 7, left2 = VS.groups[2] ? groupRemain(VS.groups[2]) : 7;
     ctx.textAlign = "right";
     ctx.fillStyle = "#8a7350";
-    ctx.fillText("你剩 " + left1 + " · AI 剩 " + left2, W - 20, 34);
+    ctx.fillText("你剩 " + left1 + " · 奶王剩 " + left2, W - 65, 34);
   } else {
     ctx.fillText("得分 " + score, 20, 34);
     ctx.font = "600 13px 'PingFang SC','Microsoft YaHei',sans-serif";
@@ -1078,10 +1426,18 @@ function drawTable() {
     ctx.fill();
   }
   // 库边（奶油色）
-  ctx.fillStyle = "#f7e8c8";
+  ctx.fillStyle = THEMES[PROFILE.theme].rail;
   ctx.strokeStyle = "#e3cf9f"; ctx.lineWidth = 2;
   roundRect(FELT.x - RAIL, FELT.y - RAIL, FELT.w + RAIL * 2, FELT.h + RAIL * 2, 10);
   ctx.fill(); ctx.stroke();
+  const theme=THEMES[PROFILE.theme];
+  ctx.fillStyle=theme.felt;ctx.fillRect(FELT.x,FELT.y,FELT.w,FELT.h);
+  ctx.save();ctx.globalAlpha=.08;drawSprite(FROG_IMGS[1],FELT.x+FELT.w/2,FELT.y+FELT.h/2,150);ctx.restore();
+  ctx.font="800 13px 'Microsoft YaHei',sans-serif";ctx.fillStyle=theme.ink;ctx.globalAlpha=.16;ctx.textAlign='center';ctx.fillText('奶 娃 的 快 乐 球 桌',W/2,FELT.y+FELT.h/2+85);ctx.globalAlpha=1;
+  // 库边瞄准刻度与奶娃掌印
+  ctx.fillStyle=theme.ink;ctx.globalAlpha=.3;
+  for(let i=1;i<8;i++){if(i===4)continue;for(const y of [FELT.y-12,FELT.y+FELT.h+12]){ctx.beginPath();ctx.arc(FELT.x+FELT.w*i/8,y,2.5,0,Math.PI*2);ctx.fill();}}
+  for(const x of [FELT.x-12,FELT.x+FELT.w+12]) for(let i=1;i<4;i++){ctx.beginPath();ctx.arc(x,FELT.y+FELT.h*i/4,2.5,0,Math.PI*2);ctx.fill();}ctx.globalAlpha=1;
   // 开球线 + 点
   ctx.strokeStyle = "rgba(180,150,95,0.4)"; ctx.lineWidth = 1.5;
   ctx.beginPath(); ctx.moveTo(HEAD.x, FELT.y + 6); ctx.lineTo(HEAD.x, FELT.y + FELT.h - 6); ctx.stroke();
@@ -1110,16 +1466,25 @@ function roundRect(x, y, w, h, r) {
 }
 
 function drawAim() {
+  if(!PROFILE.guide || isPlayerPlacement() || (mode==="versus" && VS.ballInHand)) return;
   const g = castGuide(cue.x, cue.y, aim.dx, aim.dy);
   const gx = cue.x + aim.dx * g.t, gy = cue.y + aim.dy * g.t;
   // 主虚线
-  ctx.strokeStyle = "rgba(90,67,32,0.5)";
+  const forbidden=!!ballRestriction(g.ball);
+  ctx.strokeStyle = forbidden ? "#c45d55" : "rgba(90,67,32,0.5)";
   ctx.lineWidth = 2; ctx.setLineDash([6, 7]);
   ctx.beginPath(); ctx.moveTo(cue.x + aim.dx * BALL_R, cue.y + aim.dy * BALL_R); ctx.lineTo(gx, gy); ctx.stroke();
   ctx.setLineDash([]);
   // 幽灵球
-  ctx.strokeStyle = "rgba(90,67,32,0.55)"; ctx.lineWidth = 1.8;
+  ctx.strokeStyle = forbidden ? "#c45d55" : "rgba(90,67,32,0.55)"; ctx.lineWidth = 1.8;
   ctx.beginPath(); ctx.arc(gx, gy, BALL_R, 0, Math.PI * 2); ctx.stroke();
+  if (!g.ball) {
+    const minX=FELT.x+BALL_R,maxX=FELT.x+FELT.w-BALL_R;
+    let rx=aim.dx,ry=aim.dy;
+    if(Math.abs(gx-minX)<.1||Math.abs(gx-maxX)<.1)rx=-rx;else ry=-ry;
+    const bounce=castGuide(gx+rx*.5,gy+ry*.5,rx,ry);const len=Math.min(bounce.t,240);
+    ctx.strokeStyle='rgba(57,127,101,.65)';ctx.setLineDash([4,6]);ctx.beginPath();ctx.moveTo(gx,gy);ctx.lineTo(gx+rx*len,gy+ry*len);ctx.stroke();ctx.setLineDash([]);
+  }
   if (g.ball) {
     let nx = g.ball.x - gx, ny = g.ball.y - gy;
     const nd = Math.hypot(nx, ny) || 1;
@@ -1147,7 +1512,8 @@ function drawBall(b) {
   ctx.fillStyle = "rgba(120,90,40,0.18)";
   ctx.beginPath(); ctx.ellipse(b.x + 2, b.y + 4, BALL_R * 0.95, BALL_R * 0.7, 0, 0, Math.PI * 2); ctx.fill();
   // 球体
-  const col = BALL_COLORS[b.i];
+  const col = b.black ? '#443e4a' : BALL_COLORS[b.i];
+  if(mode==='versus' && b.num>8){ctx.fillStyle='#fffaf0';ctx.beginPath();ctx.arc(b.x,b.y,BALL_R,0,Math.PI*2);ctx.fill();ctx.save();ctx.beginPath();ctx.rect(b.x-BALL_R,b.y-7,BALL_R*2,14);ctx.clip();}
   const grd = ctx.createRadialGradient(b.x - 4, b.y - 5, 2, b.x, b.y, BALL_R);
   grd.addColorStop(0, "#ffffff");
   grd.addColorStop(0.25, col);
@@ -1155,6 +1521,7 @@ function drawBall(b) {
   ctx.fillStyle = grd;
   ctx.beginPath(); ctx.arc(b.x, b.y, BALL_R, 0, Math.PI * 2); ctx.fill();
   ctx.lineWidth = 1.2; ctx.strokeStyle = "rgba(90,60,20,0.35)"; ctx.stroke();
+  if(mode==="versus" && b.num>8) ctx.restore();
   // 奶蛙脸（滚动时带旋转）
   drawSprite(FROG_IMGS[b.black ? 8 : b.sprite], b.x, b.y, BALL_R * (b.black ? 1.55 : 1.5), b.rot || 0);
   // 号码
@@ -1162,33 +1529,31 @@ function drawBall(b) {
   ctx.beginPath(); ctx.arc(b.x, b.y + BALL_R * 0.62, 5.4, 0, Math.PI * 2); ctx.fill();
   ctx.fillStyle = "#5a431a";
   ctx.font = "700 8px sans-serif"; ctx.textAlign = "center";
-  ctx.fillText(b.black ? 8 : (b.i + 1), b.x, b.y + BALL_R * 0.62 + 3);
+  ctx.fillText(b.black ? 8 : (b.num || b.i + 1), b.x, b.y + BALL_R * 0.62 + 3);
 }
 function drawCue(c) {
   ctx.fillStyle = "rgba(120,90,40,0.2)";
   ctx.beginPath(); ctx.ellipse(c.x + 2, c.y + 4, BALL_R * 0.95, BALL_R * 0.7, 0, 0, Math.PI * 2); ctx.fill();
   const grd = ctx.createRadialGradient(c.x - 4, c.y - 5, 2, c.x, c.y, BALL_R);
   grd.addColorStop(0, "#ffffff");
-  grd.addColorStop(0.6, "#fdfaf2");
-  grd.addColorStop(1, "#ddd2b8");
+  grd.addColorStop(0.6, "#fff4cc");
+  grd.addColorStop(1, "#e5c46b");
   ctx.fillStyle = grd;
   ctx.beginPath(); ctx.arc(c.x, c.y, BALL_R, 0, Math.PI * 2); ctx.fill();
   ctx.lineWidth = 1.2; ctx.strokeStyle = "rgba(90,60,20,0.3)"; ctx.stroke();
-  // 奶蛙迷因脸：眼白泛绿的凸圆眼 + 一字嘴
-  const ey = c.y - 2;
-  [-4.4, 4.4].forEach(ex => {
-    ctx.fillStyle = "#f2f7e8";
-    ctx.beginPath(); ctx.arc(c.x + ex, ey, 3.4, 0, Math.PI * 2); ctx.fill();
-    ctx.strokeStyle = "rgba(90,60,20,0.35)"; ctx.lineWidth = 0.8; ctx.stroke();
-    ctx.fillStyle = "#26200f";
-    ctx.beginPath(); ctx.arc(c.x + ex, ey + 0.4, 1.3, 0, Math.PI * 2); ctx.fill();
-  });
-  ctx.strokeStyle = "#4a3b22"; ctx.lineWidth = 1.4; ctx.lineCap = "round";
-  ctx.beginPath(); ctx.moveTo(c.x - 3.4, c.y + 5.4); ctx.lineTo(c.x + 3.4, c.y + 5.4); ctx.stroke();
-  ctx.lineCap = "butt";
-  // 高光
-  ctx.fillStyle = "rgba(255,255,255,0.9)";
-  ctx.beginPath(); ctx.arc(c.x - 4.5, c.y - 5.5, 2.4, 0, Math.PI * 2); ctx.fill();
+  // 奶娃母球：原版奶娃立绘、奶油白包边与暖金高光。
+  ctx.save();
+  ctx.strokeStyle='#fffef8';ctx.lineWidth=2.4;
+  ctx.beginPath();ctx.arc(c.x,c.y,BALL_R+1,0,Math.PI*2);ctx.stroke();
+  ctx.shadowColor='rgba(180,125,35,.2)';ctx.shadowBlur=4;
+  if(!drawSprite(FROG_IMGS[1],c.x,c.y-1,BALL_R*2.05)) {
+    ctx.fillStyle='#f6d574';ctx.beginPath();ctx.ellipse(c.x,c.y,9,10,0,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#574524';for(const x of [-3,3]){ctx.beginPath();ctx.arc(c.x+x,c.y-2,1.1,0,Math.PI*2);ctx.fill();}
+    ctx.fillStyle='#e9a64e';ctx.beginPath();ctx.ellipse(c.x,c.y+2,2,1.2,0,0,Math.PI*2);ctx.fill();
+  }
+  ctx.restore();
+  ctx.fillStyle='rgba(255,255,255,.95)';ctx.beginPath();ctx.arc(c.x-7,c.y-8,2,0,Math.PI*2);ctx.fill();
+
 }
 function drawCueStick() {
   // 出杆击打动画：state=ROLL 且 strikeT>0 时杆快速前推
@@ -1217,7 +1582,7 @@ function drawCueStick() {
   // 底部固定力度条（拉动或击打动画期间显示）
   const showPow = state === S.AIM ? pull : (strikeT > 0 ? strikePull * (strikeT / 0.1) : 0);
   if (showPow > 0) {
-    const pw = 220, px = W / 2 - pw / 2, py = H - 52;
+    const pw = 220, px = W / 2 - pw / 2, py = H - 14;
     ctx.fillStyle = "rgba(70,50,20,0.25)";
     roundRect(px - 3, py - 3, pw + 6, 14, 7); ctx.fill();
     ctx.fillStyle = "rgba(255,253,246,0.95)";
@@ -1226,16 +1591,16 @@ function drawCueStick() {
     ctx.fillStyle = r > 0.78 ? "#e8685a" : (r > 0.45 ? "#f2c14e" : "#68c488");
     roundRect(px, py, pw * r, 8, 4); ctx.fill();
     ctx.fillStyle = "rgba(90,60,20,0.85)";
-    ctx.font = "700 11px sans-serif"; ctx.textAlign = "left";
-    ctx.fillText("力度 " + Math.round(r * 100) + "%", px + pw + 12, py + 8);
+    ctx.font = "700 9px sans-serif"; ctx.textAlign = "center";
+    ctx.fillText("力度 " + Math.round(r * 100) + "%", W / 2, py - 7);
   }
 }
 
 function drawAudience() {
   for (let i = 0; i < 7; i++) {
     const ax = 90 + (W - 180) / 6 * i;
-    const bounce = Math.abs(Math.sin(fxTime * 2.4 + i * 1.7)) * (2.5 + Math.min(streak, 6));
-    drawSprite(FROG_IMGS[(i + 1) % 9], ax, H - 13 - bounce, 21, Math.sin(fxTime * 3 + i) * 0.12, 0.85);
+    const bounce = matchMedia("(prefers-reduced-motion:reduce)").matches ? 0 : Math.abs(Math.sin(fxTime * 2.4 + i * 1.7)) * (2.5 + Math.min(streak, 6));
+    drawSprite(FROG_IMGS[(i + 1) % 9], ax, H - 20 - bounce, 26, Math.sin(fxTime * 3 + i) * 0.12, 0.85);
   }
 }
 
@@ -1250,15 +1615,18 @@ function shade(hex, k) {
 
 /* ---------------- 弹窗 & 菜单 ---------------- */
 function showDlg(id) {
-  ["dlgMenu", "dlgPause", "dlgLevel", "dlgOver", "dlgDonate"].forEach(d => $(d).hidden = (d !== id));
+  ["dlgMenu", "dlgPause", "dlgLevel", "dlgOver", "dlgVs", "dlgCollection", "dlgHelp"].forEach(d => $(d).hidden = (d !== id));
   $("overlay").classList.toggle("hidden", !id);
   const inGame = state === S.AIM || state === S.ROLL;
-  $("pauseBtn").classList.toggle("show", !id && inGame && mode !== "versus");
+  $("gameTools").hidden=!!id || !inGame;
+  $("pauseBtn").classList.toggle("show", !id && inGame);
   spinPad.classList.toggle("show", !id && inGame);
   spinTip.classList.toggle("show", !id && inGame);
   if (id === "dlgMenu") refreshMenu();
 }
 function refreshMenu() {
+  refreshClub();
+  const family=$('familyPeek');if(!family.hasChildNodes()) [1,4,6,7].forEach((i,n)=>{const img=document.createElement('img');img.src=FROG_SRC[i];img.alt=FROG_NAMES[i];img.style.setProperty('--tilt',[-9,7,-6,10][n]+'deg');family.append(img);});
   $("menuBest").textContent = BEST;
   $("menuBestLevel").textContent = "第 " + BEST_LV + " 关" + (BEST_LV > 5 ? "（无尽）" : "");
   const p = hasProgress();
@@ -1284,7 +1652,7 @@ function refreshMenu() {
 }
 
 $("btnStart").onclick = () => {
-  SFX.shoot; audio(); beep(660, 0.07, "sine", 0.1);
+  mode="levels"; VS=null; audio(); beep(660, 0.07, "sine", 0.1);
   if (hasProgress()) { score = PROGRESS.score || 0; startLevel(PROGRESS.level); }
   else { score = 0; startLevel(1); }
   stage = 0;
@@ -1292,34 +1660,26 @@ $("btnStart").onclick = () => {
   state = S.AIM; showDlg(null);
 };
 $("btnRestart").onclick = () => { audio(); beep(520, 0.07, "sine", 0.1); clearProgress(); score = 0; stage = 0; startLevel(1); state = S.AIM; showDlg(null); };
-$("btnVersus").onclick = () => { audio(); beep(660, 0.07, "sine", 0.1); startVersus(1); };
-$("btnPauseMenu").onclick = () => { audio(); beep(620, 0.07, "sine", 0.1); state = S.MENU; showDlg("dlgMenu"); };
-$("btnBackTable").onclick = () => { audio(); beep(680, 0.07, "sine", 0.1); state = allStopped() ? S.AIM : S.ROLL; showDlg(null); };
-$("btnDonate").onclick = () => { audio(); beep(660, 0.07, "sine", 0.1); showDlg("dlgDonate"); };
-$("btnDonateBack").onclick = () => { audio(); beep(520, 0.07, "sine", 0.1); showDlg("dlgMenu"); };
-(function initDonate() {
-  const im = new Image();
-  im.onload = () => { $("donateImg").style.display = "block"; $("donateTip").style.display = "none"; };
-  im.src = "donate.png";
-})();
+$("btnVersus").onclick = () => { audio(); beep(660, 0.07, "sine", 0.1); startVersus(+$("aiChoice").value); };
 document.querySelectorAll("[data-diff]").forEach(b => {
   b.onclick = () => { audio(); beep(520, 0.07, "sine", 0.1); startVersus(+b.dataset.diff); };
 });
 $("btnVsAgain").onclick = () => { audio(); beep(660, 0.07, "sine", 0.1); startVersus(VS ? VS.diff : 1); };
 $("btnVsMenu").onclick = () => { audio(); beep(520, 0.07, "sine", 0.1); mode = "levels"; VS = null; state = S.MENU; showDlg("dlgMenu"); };
-$("btnNext").onclick = () => { audio(); beep(660, 0.07, "sine", 0.1); startLevel(level + 1); state = S.AIM; showDlg(null); };
+$("btnNext").onclick = () => { audio(); beep(660, 0.07, "sine", 0.1); if(mode==="practice"){startPractice(practicePreset);return;} startLevel(level + 1); state = S.AIM; showDlg(null); };
 $("pauseBtn").onclick = () => {
-  if (mode === "versus") return;   // 对战模式不支持暂停（防 AI 回合卡死）
+  matchEpoch++; pulling=false;pull=0;
   if (state !== S.AIM && state !== S.ROLL) return;
   $("pauseShots").textContent = shots; $("pauseScore").textContent = score;
   state = S.PAUSE; showDlg("dlgPause");
+  $("btnRetryLv").textContent=mode==='practice'?'重摆练习球型':'重打本关';$("btnRetryLv").hidden=mode==='versus';$("btnQuit").hidden=mode!=='levels';
 };
-$("btnResume").onclick = () => { audio(); state = allStopped() ? S.AIM : S.ROLL; showDlg(null); };
-$("btnRetryLv").onclick = () => { audio(); score = score - (0); startLevel(level); state = S.AIM; showDlg(null); };
+$("btnResume").onclick = () => { audio(); state = allStopped() ? S.AIM : S.ROLL; showDlg(null); if(mode==="versus" && VS.turn===2 && state===S.AIM) scheduleBot(botTakeTurn,400); };
+$("btnRetryLv").onclick = () => { audio(); if(mode==="practice"){startPractice(practicePreset);return;} score = levelStartScore; startLevel(level); state = S.AIM; showDlg(null); };
 $("btnQuit").onclick = () => {
   audio();
   const isNew = score > BEST;
-  if (isNew) { BEST = score; localStorage.setItem("milkyPool.best", BEST); }
+  if (isNew) { BEST = score; writeStore("milkyPool.best", BEST); }
   const rank = recordBoard();
   $("overScore").textContent = score;
   $("overBest").textContent = BEST;
@@ -1340,7 +1700,41 @@ $("btnRetry").onclick = () => {
 };
 $("btnMenu2").onclick = () => { audio(); state = S.MENU; showDlg("dlgMenu"); };
 
-/* ---------------- 启动：开场菜单 ---------------- */
+function fineAim(delta) {
+  if($("btnShoot").disabled) return; const a=Math.atan2(aim.dy,aim.dx)+delta;aim={dx:Math.cos(a),dy:Math.sin(a)};
+}
+/* ---------------- 俱乐部输入 ---------------- */
+const NAIWA_MOODS=Object.fromEntries(['idle','wave','laugh','sad','shy','think'].map(m=>[m,['assets/naiwa/'+m+'.webp','assets/naiwa/'+m+'-still.webp']]));
+const reduceMotion=matchMedia('(prefers-reduced-motion:reduce)');
+function setMood(id,mood) {const im=$(id);if(!im||im.dataset.mood===mood)return;im.dataset.mood=mood;im.src=NAIWA_MOODS[mood][reduceMotion.matches?1:0];}
+const welcome=document.createElement('img');welcome.id='welcomeFace';welcome.alt='奶娃欢迎你';welcome.width=64;welcome.height=64;$('dlgMenu').prepend(welcome);
+setMood('welcomeFace','wave');setMood('coachFace','idle');
+reduceMotion.addEventListener('change',()=>{document.querySelectorAll('img[data-mood]').forEach(im=>{const mood=im.dataset.mood;delete im.dataset.mood;setMood(im.id,mood);});});
+$("btnFineLeft").onclick=()=>fineAim(-.009);$("btnFineRight").onclick=()=>fineAim(.009);
+$("btnFullscreen").onclick=async()=>{try{if(!document.fullscreenElement)await document.documentElement.requestFullscreen();if(screen.orientation?.lock)await screen.orientation.lock("landscape");}catch(e){toast("请横持手机；当前界面已按横屏显示");}fitScale();};
+$("btnPractice").onclick=()=>{audio();startPractice($("practicePreset").value);};
+$("btnCollection").onclick=()=>{refreshCollection();showDlg('dlgCollection');};
+$("btnCollectionBack").onclick=()=>showDlg('dlgMenu');
+$("btnBackClub").onclick=()=>{matchEpoch++;mode='levels';VS=null;state=S.MENU;showDlg('dlgMenu');};
+$("btnGuide").onclick=()=>{PROFILE.guide=!PROFILE.guide;saveClub();};
+$("btnSound").onclick=()=>{PROFILE.sound=!PROFILE.sound;saveClub();if(PROFILE.sound)audio();};
+$("powerRange").oninput=()=>$("powerValue").textContent=$("powerRange").value+'%';
+$("btnShoot").onclick=()=>{if($("btnShoot").disabled)return;audio();pull=+$("powerRange").value/100*190;shoot();};
+$("btnPlace").onclick=()=>{if(state!==S.AIM)return;placingPractice=!placingPractice;$("btnPlace").textContent=placingPractice?'取消摆球':'自由摆母球';};
+$("helpGuide").onclick=()=>{PROFILE.guide=!PROFILE.guide;saveClub();$("helpGuide").textContent="瞄准辅助："+(PROFILE.guide?"开":"关");};
+$("helpSound").onclick=()=>{PROFILE.sound=!PROFILE.sound;saveClub();$("helpSound").textContent="音效："+(PROFILE.sound?"开":"关");};
+$("btnHelp").onclick=()=>{ $("helpGuide").textContent="瞄准辅助："+(PROFILE.guide?"开":"关");$("helpSound").textContent="音效："+(PROFILE.sound?"开":"关");if(state!==S.AIM && state!==S.ROLL)return;helpState=state;matchEpoch++;pulling=false;pull=0;state=S.PAUSE;showDlg('dlgHelp');};
+$("btnHelpBack").onclick=()=>{state=helpState??S.AIM;showDlg(null);if(mode==='versus' && VS.turn===2 && state===S.AIM)scheduleBot(botTakeTurn,400);};
+addEventListener('keydown',e=>{
+  if(['INPUT','SELECT','TEXTAREA','BUTTON'].includes(e.target.tagName))return;
+  if(e.key==='Escape'){e.preventDefault();if(state===S.PAUSE){if(!$("dlgHelp").hidden)$("btnHelpBack").click();else $("btnResume").click();}else if(state===S.AIM||state===S.ROLL)$("pauseBtn").click();return;}
+  if(state!==S.AIM||!cue||cue.potted||(mode==='versus' && (VS.turn!==1||VS.ballInHand))||placingPractice)return;
+  if(['ArrowLeft','ArrowRight'].includes(e.key)){e.preventDefault();const angle=Math.atan2(aim.dy,aim.dx)+(e.key==='ArrowLeft'?-1:1)*(e.shiftKey?.0015:.009);aim={dx:Math.cos(angle),dy:Math.sin(angle)};}
+  if(['ArrowUp','ArrowDown'].includes(e.key)){e.preventDefault();$("powerRange").value=clamp(+$("powerRange").value+(e.key==='ArrowUp'?5:-5),10,100);$("powerRange").oninput();}
+  if(e.code==='Space'&&!e.repeat){e.preventDefault();$("btnShoot").click();}
+});
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&(state===S.AIM||state===S.ROLL))$("pauseBtn").click();});
+/* ---------------- 启动 ---------------- */
 refreshMenu();
 showDlg("dlgMenu");
 requestAnimationFrame(loop);

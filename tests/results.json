@@ -1,0 +1,1397 @@
+[
+  {
+    "result": {
+      "passed": 67,
+      "results": [
+        {
+          "name": "随手难度保持为 0",
+          "pass": true
+        },
+        {
+          "name": "标准十五球与唯一号码",
+          "pass": true
+        },
+        {
+          "name": "实色条纹各七球",
+          "pass": true
+        },
+        {
+          "name": "球架无重叠",
+          "pass": true
+        },
+        {
+          "name": "对战黑8不触发闯关重摆或罚杆",
+          "pass": true
+        },
+        {
+          "name": "首触错组判自由球且结束滚动状态",
+          "pass": true
+        },
+        {
+          "name": "接触后未进球未碰库判犯规",
+          "pass": true
+        },
+        {
+          "name": "开放球桌可先碰另一组后合法定组",
+          "pass": true
+        },
+        {
+          "name": "合法黑8获胜",
+          "pass": true
+        },
+        {
+          "name": "结算弹窗独占显示",
+          "pass": true
+        },
+        {
+          "name": "返回菜单隐藏对战结算",
+          "pass": true
+        },
+        {
+          "name": "提前黑8即使同杆清完也判负",
+          "pass": true
+        },
+        {
+          "name": "清台存档指向下一关并包含奖励",
+          "pass": true
+        },
+        {
+          "name": "重打本关回退得分",
+          "pass": true
+        },
+        {
+          "name": "练习 0 所有球在台内且不重叠",
+          "pass": true
+        },
+        {
+          "name": "练习 1 所有球在台内且不重叠",
+          "pass": true
+        },
+        {
+          "name": "练习 2 所有球在台内且不重叠",
+          "pass": true
+        },
+        {
+          "name": "练习 3 所有球在台内且不重叠",
+          "pass": true
+        },
+        {
+          "name": "真实物理直线进袋并清台",
+          "pass": true
+        },
+        {
+          "name": "陪练不污染存档和收藏",
+          "pass": true
+        },
+        {
+          "name": "暂停冻结物理",
+          "pass": true
+        },
+        {
+          "name": "恢复运动中的球",
+          "pass": true
+        },
+        {
+          "name": "暂停取消待执行AI回调",
+          "pass": true
+        },
+        {
+          "name": "当前屏幕方向坐标逆变换准确",
+          "pass": true
+        },
+        {
+          "name": "拉杆停留同一点不累计偏转",
+          "pass": true
+        },
+        {
+          "name": "同一颗球收藏不会重复领取",
+          "pass": true
+        },
+        {
+          "name": "白球落袋动画可绘制且贴图有效",
+          "pass": true
+        },
+        {
+          "name": "陪练白球进袋进入可操作自由球",
+          "pass": true
+        },
+        {
+          "name": "摆球前禁止出杆且提示明确",
+          "pass": true
+        },
+        {
+          "name": "拒绝袋口摆球并保留自由球",
+          "pass": true
+        },
+        {
+          "name": "拒绝与目标球重叠摆球",
+          "pass": true
+        },
+        {
+          "name": "合法摆球无需消耗杆数",
+          "pass": true
+        },
+        {
+          "name": "摆好白球恢复出杆按钮",
+          "pass": true
+        },
+        {
+          "name": "摆好白球可继续真实出杆",
+          "pass": true
+        },
+        {
+          "name": "闯关白球进袋转自由球不额外罚杆",
+          "pass": true
+        },
+        {
+          "name": "自由球暂停恢复不丢失摆球状态",
+          "pass": true
+        },
+        {
+          "name": "闯关自由球摆好后恢复操作",
+          "pass": true
+        },
+        {
+          "name": "奶王白球进袋给玩家自由球",
+          "pass": true
+        },
+        {
+          "name": "自由球预览随旋转坐标正确移动",
+          "pass": true
+        },
+        {
+          "name": "点击台面实际完成自由球摆放",
+          "pass": true
+        },
+        {
+          "name": "玩家白球进袋给奶王自由球",
+          "pass": true
+        },
+        {
+          "name": "奶王可以放置自由球继续瞄准",
+          "pass": true
+        },
+        {
+          "name": "未定组只禁止黑八",
+          "pass": true
+        },
+        {
+          "name": "对方七球与未解锁黑八全部标禁打",
+          "pass": true
+        },
+        {
+          "name": "关闭辅助线仍真实绘制八个禁打标签",
+          "pass": true
+        },
+        {
+          "name": "瞄准对方球有明确犯规预警",
+          "pass": true
+        },
+        {
+          "name": "清完己方后黑八解除禁打",
+          "pass": true
+        },
+        {
+          "name": "清完己方仍禁止首触对方球",
+          "pass": true
+        },
+        {
+          "name": "玩家条纹组时禁打标记正确反转",
+          "pass": true
+        },
+        {
+          "name": "九张奶娃图片均可正常解码",
+          "pass": true
+        },
+        {
+          "name": "全部页面文案无英文字母",
+          "pass": true
+        },
+        {
+          "name": "实际画布文案无英文字母",
+          "pass": true
+        },
+        {
+          "name": "真实动画循环自动处理白球落袋",
+          "pass": true
+        },
+        {
+          "name": "白球落袋后绘制循环持续运行",
+          "pass": true
+        },
+        {
+          "name": "自由球提示及按钮在当前屏幕内",
+          "pass": true
+        },
+        {
+          "name": "切换球局清除旧自由球提示",
+          "pass": true
+        },
+        {
+          "name": "横屏球桌完整位于屏幕内",
+          "pass": true
+        },
+        {
+          "name": "出杆力度微调与玩法按钮全部可见",
+          "pass": true
+        },
+        {
+          "name": "侧边控制区与球桌不重叠",
+          "pass": true
+        },
+        {
+          "name": "微调按钮确实改变瞄准方向",
+          "pass": true
+        },
+        {
+          "name": "滑块力度显示同步",
+          "pass": true
+        },
+        {
+          "name": "独立出杆按钮实际推动白球",
+          "pass": true
+        },
+        {
+          "name": "滚动中防止重复出杆",
+          "pass": true
+        },
+        {
+          "name": "触控取消不会误出杆",
+          "pass": true
+        },
+        {
+          "name": "新增六种奶娃动画及静态替代均能解码",
+          "pass": true
+        },
+        {
+          "name": "自由球触发奶娃安慰表情",
+          "pass": true
+        },
+        {
+          "name": "对手回合触发奶娃思考表情",
+          "pass": true
+        }
+      ]
+    },
+    "viewport": [
+      1280,
+      800
+    ]
+  },
+  {
+    "result": {
+      "passed": 67,
+      "results": [
+        {
+          "name": "随手难度保持为 0",
+          "pass": true
+        },
+        {
+          "name": "标准十五球与唯一号码",
+          "pass": true
+        },
+        {
+          "name": "实色条纹各七球",
+          "pass": true
+        },
+        {
+          "name": "球架无重叠",
+          "pass": true
+        },
+        {
+          "name": "对战黑8不触发闯关重摆或罚杆",
+          "pass": true
+        },
+        {
+          "name": "首触错组判自由球且结束滚动状态",
+          "pass": true
+        },
+        {
+          "name": "接触后未进球未碰库判犯规",
+          "pass": true
+        },
+        {
+          "name": "开放球桌可先碰另一组后合法定组",
+          "pass": true
+        },
+        {
+          "name": "合法黑8获胜",
+          "pass": true
+        },
+        {
+          "name": "结算弹窗独占显示",
+          "pass": true
+        },
+        {
+          "name": "返回菜单隐藏对战结算",
+          "pass": true
+        },
+        {
+          "name": "提前黑8即使同杆清完也判负",
+          "pass": true
+        },
+        {
+          "name": "清台存档指向下一关并包含奖励",
+          "pass": true
+        },
+        {
+          "name": "重打本关回退得分",
+          "pass": true
+        },
+        {
+          "name": "练习 0 所有球在台内且不重叠",
+          "pass": true
+        },
+        {
+          "name": "练习 1 所有球在台内且不重叠",
+          "pass": true
+        },
+        {
+          "name": "练习 2 所有球在台内且不重叠",
+          "pass": true
+        },
+        {
+          "name": "练习 3 所有球在台内且不重叠",
+          "pass": true
+        },
+        {
+          "name": "真实物理直线进袋并清台",
+          "pass": true
+        },
+        {
+          "name": "陪练不污染存档和收藏",
+          "pass": true
+        },
+        {
+          "name": "暂停冻结物理",
+          "pass": true
+        },
+        {
+          "name": "恢复运动中的球",
+          "pass": true
+        },
+        {
+          "name": "暂停取消待执行AI回调",
+          "pass": true
+        },
+        {
+          "name": "当前屏幕方向坐标逆变换准确",
+          "pass": true
+        },
+        {
+          "name": "拉杆停留同一点不累计偏转",
+          "pass": true
+        },
+        {
+          "name": "同一颗球收藏不会重复领取",
+          "pass": true
+        },
+        {
+          "name": "白球落袋动画可绘制且贴图有效",
+          "pass": true
+        },
+        {
+          "name": "陪练白球进袋进入可操作自由球",
+          "pass": true
+        },
+        {
+          "name": "摆球前禁止出杆且提示明确",
+          "pass": true
+        },
+        {
+          "name": "拒绝袋口摆球并保留自由球",
+          "pass": true
+        },
+        {
+          "name": "拒绝与目标球重叠摆球",
+          "pass": true
+        },
+        {
+          "name": "合法摆球无需消耗杆数",
+          "pass": true
+        },
+        {
+          "name": "摆好白球恢复出杆按钮",
+          "pass": true
+        },
+        {
+          "name": "摆好白球可继续真实出杆",
+          "pass": true
+        },
+        {
+          "name": "闯关白球进袋转自由球不额外罚杆",
+          "pass": true
+        },
+        {
+          "name": "自由球暂停恢复不丢失摆球状态",
+          "pass": true
+        },
+        {
+          "name": "闯关自由球摆好后恢复操作",
+          "pass": true
+        },
+        {
+          "name": "奶王白球进袋给玩家自由球",
+          "pass": true
+        },
+        {
+          "name": "自由球预览随旋转坐标正确移动",
+          "pass": true
+        },
+        {
+          "name": "点击台面实际完成自由球摆放",
+          "pass": true
+        },
+        {
+          "name": "玩家白球进袋给奶王自由球",
+          "pass": true
+        },
+        {
+          "name": "奶王可以放置自由球继续瞄准",
+          "pass": true
+        },
+        {
+          "name": "未定组只禁止黑八",
+          "pass": true
+        },
+        {
+          "name": "对方七球与未解锁黑八全部标禁打",
+          "pass": true
+        },
+        {
+          "name": "关闭辅助线仍真实绘制八个禁打标签",
+          "pass": true
+        },
+        {
+          "name": "瞄准对方球有明确犯规预警",
+          "pass": true
+        },
+        {
+          "name": "清完己方后黑八解除禁打",
+          "pass": true
+        },
+        {
+          "name": "清完己方仍禁止首触对方球",
+          "pass": true
+        },
+        {
+          "name": "玩家条纹组时禁打标记正确反转",
+          "pass": true
+        },
+        {
+          "name": "九张奶娃图片均可正常解码",
+          "pass": true
+        },
+        {
+          "name": "全部页面文案无英文字母",
+          "pass": true
+        },
+        {
+          "name": "实际画布文案无英文字母",
+          "pass": true
+        },
+        {
+          "name": "真实动画循环自动处理白球落袋",
+          "pass": true
+        },
+        {
+          "name": "白球落袋后绘制循环持续运行",
+          "pass": true
+        },
+        {
+          "name": "自由球提示及按钮在当前屏幕内",
+          "pass": true
+        },
+        {
+          "name": "切换球局清除旧自由球提示",
+          "pass": true
+        },
+        {
+          "name": "横屏球桌完整位于屏幕内",
+          "pass": true
+        },
+        {
+          "name": "出杆力度微调与玩法按钮全部可见",
+          "pass": true
+        },
+        {
+          "name": "侧边控制区与球桌不重叠",
+          "pass": true
+        },
+        {
+          "name": "微调按钮确实改变瞄准方向",
+          "pass": true
+        },
+        {
+          "name": "滑块力度显示同步",
+          "pass": true
+        },
+        {
+          "name": "独立出杆按钮实际推动白球",
+          "pass": true
+        },
+        {
+          "name": "滚动中防止重复出杆",
+          "pass": true
+        },
+        {
+          "name": "触控取消不会误出杆",
+          "pass": true
+        },
+        {
+          "name": "新增六种奶娃动画及静态替代均能解码",
+          "pass": true
+        },
+        {
+          "name": "自由球触发奶娃安慰表情",
+          "pass": true
+        },
+        {
+          "name": "对手回合触发奶娃思考表情",
+          "pass": true
+        }
+      ]
+    },
+    "viewport": [
+      844,
+      390
+    ]
+  },
+  {
+    "result": {
+      "passed": 67,
+      "results": [
+        {
+          "name": "随手难度保持为 0",
+          "pass": true
+        },
+        {
+          "name": "标准十五球与唯一号码",
+          "pass": true
+        },
+        {
+          "name": "实色条纹各七球",
+          "pass": true
+        },
+        {
+          "name": "球架无重叠",
+          "pass": true
+        },
+        {
+          "name": "对战黑8不触发闯关重摆或罚杆",
+          "pass": true
+        },
+        {
+          "name": "首触错组判自由球且结束滚动状态",
+          "pass": true
+        },
+        {
+          "name": "接触后未进球未碰库判犯规",
+          "pass": true
+        },
+        {
+          "name": "开放球桌可先碰另一组后合法定组",
+          "pass": true
+        },
+        {
+          "name": "合法黑8获胜",
+          "pass": true
+        },
+        {
+          "name": "结算弹窗独占显示",
+          "pass": true
+        },
+        {
+          "name": "返回菜单隐藏对战结算",
+          "pass": true
+        },
+        {
+          "name": "提前黑8即使同杆清完也判负",
+          "pass": true
+        },
+        {
+          "name": "清台存档指向下一关并包含奖励",
+          "pass": true
+        },
+        {
+          "name": "重打本关回退得分",
+          "pass": true
+        },
+        {
+          "name": "练习 0 所有球在台内且不重叠",
+          "pass": true
+        },
+        {
+          "name": "练习 1 所有球在台内且不重叠",
+          "pass": true
+        },
+        {
+          "name": "练习 2 所有球在台内且不重叠",
+          "pass": true
+        },
+        {
+          "name": "练习 3 所有球在台内且不重叠",
+          "pass": true
+        },
+        {
+          "name": "真实物理直线进袋并清台",
+          "pass": true
+        },
+        {
+          "name": "陪练不污染存档和收藏",
+          "pass": true
+        },
+        {
+          "name": "暂停冻结物理",
+          "pass": true
+        },
+        {
+          "name": "恢复运动中的球",
+          "pass": true
+        },
+        {
+          "name": "暂停取消待执行AI回调",
+          "pass": true
+        },
+        {
+          "name": "当前屏幕方向坐标逆变换准确",
+          "pass": true
+        },
+        {
+          "name": "拉杆停留同一点不累计偏转",
+          "pass": true
+        },
+        {
+          "name": "同一颗球收藏不会重复领取",
+          "pass": true
+        },
+        {
+          "name": "白球落袋动画可绘制且贴图有效",
+          "pass": true
+        },
+        {
+          "name": "陪练白球进袋进入可操作自由球",
+          "pass": true
+        },
+        {
+          "name": "摆球前禁止出杆且提示明确",
+          "pass": true
+        },
+        {
+          "name": "拒绝袋口摆球并保留自由球",
+          "pass": true
+        },
+        {
+          "name": "拒绝与目标球重叠摆球",
+          "pass": true
+        },
+        {
+          "name": "合法摆球无需消耗杆数",
+          "pass": true
+        },
+        {
+          "name": "摆好白球恢复出杆按钮",
+          "pass": true
+        },
+        {
+          "name": "摆好白球可继续真实出杆",
+          "pass": true
+        },
+        {
+          "name": "闯关白球进袋转自由球不额外罚杆",
+          "pass": true
+        },
+        {
+          "name": "自由球暂停恢复不丢失摆球状态",
+          "pass": true
+        },
+        {
+          "name": "闯关自由球摆好后恢复操作",
+          "pass": true
+        },
+        {
+          "name": "奶王白球进袋给玩家自由球",
+          "pass": true
+        },
+        {
+          "name": "自由球预览随旋转坐标正确移动",
+          "pass": true
+        },
+        {
+          "name": "点击台面实际完成自由球摆放",
+          "pass": true
+        },
+        {
+          "name": "玩家白球进袋给奶王自由球",
+          "pass": true
+        },
+        {
+          "name": "奶王可以放置自由球继续瞄准",
+          "pass": true
+        },
+        {
+          "name": "未定组只禁止黑八",
+          "pass": true
+        },
+        {
+          "name": "对方七球与未解锁黑八全部标禁打",
+          "pass": true
+        },
+        {
+          "name": "关闭辅助线仍真实绘制八个禁打标签",
+          "pass": true
+        },
+        {
+          "name": "瞄准对方球有明确犯规预警",
+          "pass": true
+        },
+        {
+          "name": "清完己方后黑八解除禁打",
+          "pass": true
+        },
+        {
+          "name": "清完己方仍禁止首触对方球",
+          "pass": true
+        },
+        {
+          "name": "玩家条纹组时禁打标记正确反转",
+          "pass": true
+        },
+        {
+          "name": "九张奶娃图片均可正常解码",
+          "pass": true
+        },
+        {
+          "name": "全部页面文案无英文字母",
+          "pass": true
+        },
+        {
+          "name": "实际画布文案无英文字母",
+          "pass": true
+        },
+        {
+          "name": "真实动画循环自动处理白球落袋",
+          "pass": true
+        },
+        {
+          "name": "白球落袋后绘制循环持续运行",
+          "pass": true
+        },
+        {
+          "name": "自由球提示及按钮在当前屏幕内",
+          "pass": true
+        },
+        {
+          "name": "切换球局清除旧自由球提示",
+          "pass": true
+        },
+        {
+          "name": "横屏球桌完整位于屏幕内",
+          "pass": true
+        },
+        {
+          "name": "出杆力度微调与玩法按钮全部可见",
+          "pass": true
+        },
+        {
+          "name": "侧边控制区与球桌不重叠",
+          "pass": true
+        },
+        {
+          "name": "微调按钮确实改变瞄准方向",
+          "pass": true
+        },
+        {
+          "name": "滑块力度显示同步",
+          "pass": true
+        },
+        {
+          "name": "独立出杆按钮实际推动白球",
+          "pass": true
+        },
+        {
+          "name": "滚动中防止重复出杆",
+          "pass": true
+        },
+        {
+          "name": "触控取消不会误出杆",
+          "pass": true
+        },
+        {
+          "name": "新增六种奶娃动画及静态替代均能解码",
+          "pass": true
+        },
+        {
+          "name": "自由球触发奶娃安慰表情",
+          "pass": true
+        },
+        {
+          "name": "对手回合触发奶娃思考表情",
+          "pass": true
+        }
+      ]
+    },
+    "viewport": [
+      390,
+      844
+    ]
+  },
+  {
+    "result": {
+      "passed": 67,
+      "results": [
+        {
+          "name": "随手难度保持为 0",
+          "pass": true
+        },
+        {
+          "name": "标准十五球与唯一号码",
+          "pass": true
+        },
+        {
+          "name": "实色条纹各七球",
+          "pass": true
+        },
+        {
+          "name": "球架无重叠",
+          "pass": true
+        },
+        {
+          "name": "对战黑8不触发闯关重摆或罚杆",
+          "pass": true
+        },
+        {
+          "name": "首触错组判自由球且结束滚动状态",
+          "pass": true
+        },
+        {
+          "name": "接触后未进球未碰库判犯规",
+          "pass": true
+        },
+        {
+          "name": "开放球桌可先碰另一组后合法定组",
+          "pass": true
+        },
+        {
+          "name": "合法黑8获胜",
+          "pass": true
+        },
+        {
+          "name": "结算弹窗独占显示",
+          "pass": true
+        },
+        {
+          "name": "返回菜单隐藏对战结算",
+          "pass": true
+        },
+        {
+          "name": "提前黑8即使同杆清完也判负",
+          "pass": true
+        },
+        {
+          "name": "清台存档指向下一关并包含奖励",
+          "pass": true
+        },
+        {
+          "name": "重打本关回退得分",
+          "pass": true
+        },
+        {
+          "name": "练习 0 所有球在台内且不重叠",
+          "pass": true
+        },
+        {
+          "name": "练习 1 所有球在台内且不重叠",
+          "pass": true
+        },
+        {
+          "name": "练习 2 所有球在台内且不重叠",
+          "pass": true
+        },
+        {
+          "name": "练习 3 所有球在台内且不重叠",
+          "pass": true
+        },
+        {
+          "name": "真实物理直线进袋并清台",
+          "pass": true
+        },
+        {
+          "name": "陪练不污染存档和收藏",
+          "pass": true
+        },
+        {
+          "name": "暂停冻结物理",
+          "pass": true
+        },
+        {
+          "name": "恢复运动中的球",
+          "pass": true
+        },
+        {
+          "name": "暂停取消待执行AI回调",
+          "pass": true
+        },
+        {
+          "name": "当前屏幕方向坐标逆变换准确",
+          "pass": true
+        },
+        {
+          "name": "拉杆停留同一点不累计偏转",
+          "pass": true
+        },
+        {
+          "name": "同一颗球收藏不会重复领取",
+          "pass": true
+        },
+        {
+          "name": "白球落袋动画可绘制且贴图有效",
+          "pass": true
+        },
+        {
+          "name": "陪练白球进袋进入可操作自由球",
+          "pass": true
+        },
+        {
+          "name": "摆球前禁止出杆且提示明确",
+          "pass": true
+        },
+        {
+          "name": "拒绝袋口摆球并保留自由球",
+          "pass": true
+        },
+        {
+          "name": "拒绝与目标球重叠摆球",
+          "pass": true
+        },
+        {
+          "name": "合法摆球无需消耗杆数",
+          "pass": true
+        },
+        {
+          "name": "摆好白球恢复出杆按钮",
+          "pass": true
+        },
+        {
+          "name": "摆好白球可继续真实出杆",
+          "pass": true
+        },
+        {
+          "name": "闯关白球进袋转自由球不额外罚杆",
+          "pass": true
+        },
+        {
+          "name": "自由球暂停恢复不丢失摆球状态",
+          "pass": true
+        },
+        {
+          "name": "闯关自由球摆好后恢复操作",
+          "pass": true
+        },
+        {
+          "name": "奶王白球进袋给玩家自由球",
+          "pass": true
+        },
+        {
+          "name": "自由球预览随旋转坐标正确移动",
+          "pass": true
+        },
+        {
+          "name": "点击台面实际完成自由球摆放",
+          "pass": true
+        },
+        {
+          "name": "玩家白球进袋给奶王自由球",
+          "pass": true
+        },
+        {
+          "name": "奶王可以放置自由球继续瞄准",
+          "pass": true
+        },
+        {
+          "name": "未定组只禁止黑八",
+          "pass": true
+        },
+        {
+          "name": "对方七球与未解锁黑八全部标禁打",
+          "pass": true
+        },
+        {
+          "name": "关闭辅助线仍真实绘制八个禁打标签",
+          "pass": true
+        },
+        {
+          "name": "瞄准对方球有明确犯规预警",
+          "pass": true
+        },
+        {
+          "name": "清完己方后黑八解除禁打",
+          "pass": true
+        },
+        {
+          "name": "清完己方仍禁止首触对方球",
+          "pass": true
+        },
+        {
+          "name": "玩家条纹组时禁打标记正确反转",
+          "pass": true
+        },
+        {
+          "name": "九张奶娃图片均可正常解码",
+          "pass": true
+        },
+        {
+          "name": "全部页面文案无英文字母",
+          "pass": true
+        },
+        {
+          "name": "实际画布文案无英文字母",
+          "pass": true
+        },
+        {
+          "name": "真实动画循环自动处理白球落袋",
+          "pass": true
+        },
+        {
+          "name": "白球落袋后绘制循环持续运行",
+          "pass": true
+        },
+        {
+          "name": "自由球提示及按钮在当前屏幕内",
+          "pass": true
+        },
+        {
+          "name": "切换球局清除旧自由球提示",
+          "pass": true
+        },
+        {
+          "name": "横屏球桌完整位于屏幕内",
+          "pass": true
+        },
+        {
+          "name": "出杆力度微调与玩法按钮全部可见",
+          "pass": true
+        },
+        {
+          "name": "侧边控制区与球桌不重叠",
+          "pass": true
+        },
+        {
+          "name": "微调按钮确实改变瞄准方向",
+          "pass": true
+        },
+        {
+          "name": "滑块力度显示同步",
+          "pass": true
+        },
+        {
+          "name": "独立出杆按钮实际推动白球",
+          "pass": true
+        },
+        {
+          "name": "滚动中防止重复出杆",
+          "pass": true
+        },
+        {
+          "name": "触控取消不会误出杆",
+          "pass": true
+        },
+        {
+          "name": "新增六种奶娃动画及静态替代均能解码",
+          "pass": true
+        },
+        {
+          "name": "自由球触发奶娃安慰表情",
+          "pass": true
+        },
+        {
+          "name": "对手回合触发奶娃思考表情",
+          "pass": true
+        }
+      ]
+    },
+    "viewport": [
+      568,
+      320
+    ]
+  },
+  {
+    "result": {
+      "passed": 67,
+      "results": [
+        {
+          "name": "随手难度保持为 0",
+          "pass": true
+        },
+        {
+          "name": "标准十五球与唯一号码",
+          "pass": true
+        },
+        {
+          "name": "实色条纹各七球",
+          "pass": true
+        },
+        {
+          "name": "球架无重叠",
+          "pass": true
+        },
+        {
+          "name": "对战黑8不触发闯关重摆或罚杆",
+          "pass": true
+        },
+        {
+          "name": "首触错组判自由球且结束滚动状态",
+          "pass": true
+        },
+        {
+          "name": "接触后未进球未碰库判犯规",
+          "pass": true
+        },
+        {
+          "name": "开放球桌可先碰另一组后合法定组",
+          "pass": true
+        },
+        {
+          "name": "合法黑8获胜",
+          "pass": true
+        },
+        {
+          "name": "结算弹窗独占显示",
+          "pass": true
+        },
+        {
+          "name": "返回菜单隐藏对战结算",
+          "pass": true
+        },
+        {
+          "name": "提前黑8即使同杆清完也判负",
+          "pass": true
+        },
+        {
+          "name": "清台存档指向下一关并包含奖励",
+          "pass": true
+        },
+        {
+          "name": "重打本关回退得分",
+          "pass": true
+        },
+        {
+          "name": "练习 0 所有球在台内且不重叠",
+          "pass": true
+        },
+        {
+          "name": "练习 1 所有球在台内且不重叠",
+          "pass": true
+        },
+        {
+          "name": "练习 2 所有球在台内且不重叠",
+          "pass": true
+        },
+        {
+          "name": "练习 3 所有球在台内且不重叠",
+          "pass": true
+        },
+        {
+          "name": "真实物理直线进袋并清台",
+          "pass": true
+        },
+        {
+          "name": "陪练不污染存档和收藏",
+          "pass": true
+        },
+        {
+          "name": "暂停冻结物理",
+          "pass": true
+        },
+        {
+          "name": "恢复运动中的球",
+          "pass": true
+        },
+        {
+          "name": "暂停取消待执行AI回调",
+          "pass": true
+        },
+        {
+          "name": "当前屏幕方向坐标逆变换准确",
+          "pass": true
+        },
+        {
+          "name": "拉杆停留同一点不累计偏转",
+          "pass": true
+        },
+        {
+          "name": "同一颗球收藏不会重复领取",
+          "pass": true
+        },
+        {
+          "name": "白球落袋动画可绘制且贴图有效",
+          "pass": true
+        },
+        {
+          "name": "陪练白球进袋进入可操作自由球",
+          "pass": true
+        },
+        {
+          "name": "摆球前禁止出杆且提示明确",
+          "pass": true
+        },
+        {
+          "name": "拒绝袋口摆球并保留自由球",
+          "pass": true
+        },
+        {
+          "name": "拒绝与目标球重叠摆球",
+          "pass": true
+        },
+        {
+          "name": "合法摆球无需消耗杆数",
+          "pass": true
+        },
+        {
+          "name": "摆好白球恢复出杆按钮",
+          "pass": true
+        },
+        {
+          "name": "摆好白球可继续真实出杆",
+          "pass": true
+        },
+        {
+          "name": "闯关白球进袋转自由球不额外罚杆",
+          "pass": true
+        },
+        {
+          "name": "自由球暂停恢复不丢失摆球状态",
+          "pass": true
+        },
+        {
+          "name": "闯关自由球摆好后恢复操作",
+          "pass": true
+        },
+        {
+          "name": "奶王白球进袋给玩家自由球",
+          "pass": true
+        },
+        {
+          "name": "自由球预览随旋转坐标正确移动",
+          "pass": true
+        },
+        {
+          "name": "点击台面实际完成自由球摆放",
+          "pass": true
+        },
+        {
+          "name": "玩家白球进袋给奶王自由球",
+          "pass": true
+        },
+        {
+          "name": "奶王可以放置自由球继续瞄准",
+          "pass": true
+        },
+        {
+          "name": "未定组只禁止黑八",
+          "pass": true
+        },
+        {
+          "name": "对方七球与未解锁黑八全部标禁打",
+          "pass": true
+        },
+        {
+          "name": "关闭辅助线仍真实绘制八个禁打标签",
+          "pass": true
+        },
+        {
+          "name": "瞄准对方球有明确犯规预警",
+          "pass": true
+        },
+        {
+          "name": "清完己方后黑八解除禁打",
+          "pass": true
+        },
+        {
+          "name": "清完己方仍禁止首触对方球",
+          "pass": true
+        },
+        {
+          "name": "玩家条纹组时禁打标记正确反转",
+          "pass": true
+        },
+        {
+          "name": "九张奶娃图片均可正常解码",
+          "pass": true
+        },
+        {
+          "name": "全部页面文案无英文字母",
+          "pass": true
+        },
+        {
+          "name": "实际画布文案无英文字母",
+          "pass": true
+        },
+        {
+          "name": "真实动画循环自动处理白球落袋",
+          "pass": true
+        },
+        {
+          "name": "白球落袋后绘制循环持续运行",
+          "pass": true
+        },
+        {
+          "name": "自由球提示及按钮在当前屏幕内",
+          "pass": true
+        },
+        {
+          "name": "切换球局清除旧自由球提示",
+          "pass": true
+        },
+        {
+          "name": "横屏球桌完整位于屏幕内",
+          "pass": true
+        },
+        {
+          "name": "出杆力度微调与玩法按钮全部可见",
+          "pass": true
+        },
+        {
+          "name": "侧边控制区与球桌不重叠",
+          "pass": true
+        },
+        {
+          "name": "微调按钮确实改变瞄准方向",
+          "pass": true
+        },
+        {
+          "name": "滑块力度显示同步",
+          "pass": true
+        },
+        {
+          "name": "独立出杆按钮实际推动白球",
+          "pass": true
+        },
+        {
+          "name": "滚动中防止重复出杆",
+          "pass": true
+        },
+        {
+          "name": "触控取消不会误出杆",
+          "pass": true
+        },
+        {
+          "name": "新增六种奶娃动画及静态替代均能解码",
+          "pass": true
+        },
+        {
+          "name": "自由球触发奶娃安慰表情",
+          "pass": true
+        },
+        {
+          "name": "对手回合触发奶娃思考表情",
+          "pass": true
+        }
+      ]
+    },
+    "viewport": [
+      320,
+      568
+    ]
+  }
+]

@@ -1,0 +1,5 @@
+backups/
+tests/*.png
+tests/check-*.json
+tests/upgrade_mobile.py
+__pycache__/
