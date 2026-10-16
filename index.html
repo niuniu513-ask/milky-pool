@@ -114,9 +114,38 @@
   #chain { display: flex; gap: 2px; justify-content: center; align-items: flex-end; margin-top: 10px; }
   #chain img { width: 30px; image-rendering: auto; opacity: 0.92; }
   #chain .arrow { color: #d8c290; font-size: 11px; padding: 0 1px 8px; }
+
+  /* 竖屏旋转提示 */
+  #rot {
+    position: fixed; inset: 0; z-index: 200; display: none;
+    flex-direction: column; align-items: center; justify-content: center; gap: 12px;
+    background: linear-gradient(160deg, #fff8ec, #ffe3c2); color: #8a5a2b; text-align: center;
+  }
+  #rot .phone { font-size: 56px; animation: rotSpin 1.8s ease-in-out infinite; }
+  #rot b { font-size: 20px; }
+  #rot span { color: #b08a5a; font-size: 13px; line-height: 1.7; }
+  @keyframes rotSpin { 0%, 18% { transform: rotate(0); } 55%, 88% { transform: rotate(90deg); } 100% { transform: rotate(90deg); } }
+  @media (orientation: portrait) { #rot { display: flex; } }
+
+  /* 横屏矮视口（手机）压缩弹窗 */
+  @media (max-height: 500px) {
+    .dialog { max-height: 94%; padding: 12px 14px; border-radius: 14px; }
+    .dialog h1 { font-size: 19px; margin: 2px 0; }
+    .dialog h2 { font-size: 16px; margin: 2px 0; }
+    .dialog p { font-size: 12px; margin: 2px 0; }
+    .btn { margin-top: 6px; padding: 9px 0; font-size: 14px; }
+    #board { max-height: 60px; }
+    #chain { margin-top: 5px; }
+    #chain img { width: 22px; }
+    #chain .arrow { font-size: 9px; padding-bottom: 5px; }
+    .hint { display: none; }
+    .dialog img[width="64"] { width: 44px; }
+    .dialog img[width="56"] { width: 40px; }
+  }
 </style>
 </head>
 <body>
+<div id="rot"><div class="phone">📱</div><b>请横屏游玩</b><span>奶蛙台球是横屏游戏<br>把手机转过来体验最佳 🐸</span></div>
 <div id="wrap">
   <canvas id="cvs"></canvas>
   <button id="pauseBtn">Ⅱ</button>
@@ -203,10 +232,18 @@
    纯 Canvas 2D + 自写物理（等质量弹性碰撞 / 库边反弹 / 袋口捕获）
    ================================================================ */
 
-const W = 900, H = 560;
+let W = 900, H = 560;
+(function pickSize() {
+  // 按屏幕比例动态选台面尺寸：横屏手机（19.5:9 等）也能铺满，不留大黑边
+  const ar = Math.min(Math.max(innerWidth / Math.max(innerHeight, 1), 1.35), 2.1);
+  H = 520; W = Math.round(H * ar);
+  if (W < 860) { W = 860; H = Math.round(W / Math.min(ar, 1.6)); }
+})();
 const cvs = document.getElementById("cvs");
 const ctx = cvs.getContext("2d");
-cvs.width = W; cvs.height = H;
+const DPR = Math.min(window.devicePixelRatio || 1, 2);   // 高分屏高清渲染
+cvs.width = W * DPR; cvs.height = H * DPR;
+ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
 
 function fitScale() {
   const pad = 8;
@@ -291,7 +328,7 @@ const SFX = {
 };
 
 /* ---------------- 场地几何 ---------------- */
-const FELT = { x: 70, y: 95, w: 760, h: 380 };     // 呢面
+const FELT = { x: 70, y: 95, w: W - 140, h: H - 180 };  // 呢面（随 W/H 自适应）
 const RAIL = 24;                                    // 库边宽
 const BALL_R = 13;
 const POCKET_R = 23;
@@ -1190,7 +1227,7 @@ function drawCueStick() {
   // 底部固定力度条（拉动或击打动画期间显示）
   const showPow = state === S.AIM ? pull : (strikeT > 0 ? strikePull * (strikeT / 0.1) : 0);
   if (showPow > 0) {
-    const pw = 220, px = W / 2 - pw / 2, py = H - 14;
+    const pw = 220, px = W / 2 - pw / 2, py = H - 52;
     ctx.fillStyle = "rgba(70,50,20,0.25)";
     roundRect(px - 3, py - 3, pw + 6, 14, 7); ctx.fill();
     ctx.fillStyle = "rgba(255,253,246,0.95)";
@@ -1199,8 +1236,8 @@ function drawCueStick() {
     ctx.fillStyle = r > 0.78 ? "#e8685a" : (r > 0.45 ? "#f2c14e" : "#68c488");
     roundRect(px, py, pw * r, 8, 4); ctx.fill();
     ctx.fillStyle = "rgba(90,60,20,0.85)";
-    ctx.font = "700 9px sans-serif"; ctx.textAlign = "center";
-    ctx.fillText("力度 " + Math.round(r * 100) + "%", W / 2, py - 7);
+    ctx.font = "700 11px sans-serif"; ctx.textAlign = "left";
+    ctx.fillText("力度 " + Math.round(r * 100) + "%", px + pw + 12, py + 8);
   }
 }
 
@@ -1208,7 +1245,7 @@ function drawAudience() {
   for (let i = 0; i < 7; i++) {
     const ax = 90 + (W - 180) / 6 * i;
     const bounce = Math.abs(Math.sin(fxTime * 2.4 + i * 1.7)) * (2.5 + Math.min(streak, 6));
-    drawSprite(FROG_IMGS[(i + 1) % 9], ax, H - 20 - bounce, 26, Math.sin(fxTime * 3 + i) * 0.12, 0.85);
+    drawSprite(FROG_IMGS[(i + 1) % 9], ax, H - 13 - bounce, 21, Math.sin(fxTime * 3 + i) * 0.12, 0.85);
   }
 }
 
