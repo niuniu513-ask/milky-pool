@@ -108,6 +108,33 @@
     check('新增六种奶娃动画及静态替代均能解码',Object.keys(NAIWA_MOODS).length===6);
     startPractice(0);freeCue=true;updateTools();check('自由球触发奶娃安慰表情',$('coachFace').dataset.mood==='sad');
     freeCue=false;startVersus(1);VS.turn=2;updateTools();check('对手回合触发奶娃思考表情',$('coachFace').dataset.mood==='think');
+    startPractice(1);render();
+    const nativeCapture=cvs.setPointerCapture;cvs.setPointerCapture=()=>{};
+    try {
+      const physicalAt=(x,y)=>{const r=cvs.getBoundingClientRect();return document.documentElement.classList.contains('phone-portrait')?{clientX:r.right-y/H*r.width,clientY:r.top+x/W*r.height}:{clientX:r.left+x/W*r.width,clientY:r.top+y/H*r.height};};
+      cvs.dispatchEvent(new PointerEvent('pointerdown',{...physicalAt(cue.x+100,cue.y),pointerId:31,pointerType:'touch',isPrimary:true}));
+      cvs.dispatchEvent(new PointerEvent('pointermove',{...physicalAt(cue.x+20,cue.y),pointerId:31,pointerType:'touch',isPrimary:true}));
+      const heldPull=pull,heldAim={...aim};
+      cvs.dispatchEvent(new PointerEvent('pointerdown',{...physicalAt(200,150),pointerId:32,pointerType:'touch',isPrimary:false}));
+      cvs.dispatchEvent(new PointerEvent('pointermove',{...physicalAt(210,140),pointerId:32,pointerType:'touch',isPrimary:false}));
+      cvs.dispatchEvent(new PointerEvent('pointerup',{pointerId:32,pointerType:'touch',isPrimary:false}));
+      check('副手指触碰与松开不改变拉杆或误出杆',pulling&&pull===heldPull&&aim.dx===heldAim.dx&&aim.dy===heldAim.dy&&state===S.AIM);
+      dispatchEvent(new Event('resize'));cvs.dispatchEvent(new PointerEvent('pointerup',{pointerId:31,pointerType:'touch',isPrimary:true}));
+      check('旋转屏幕后松手不会误出杆',!pulling&&pull===0&&state===S.AIM);
+      cvs.dispatchEvent(new PointerEvent('pointerdown',{...physicalAt(400,280),pointerId:33,pointerType:'touch',isPrimary:true}));
+      $('pauseBtn').click();$('btnResume').click();
+      check('暂停恢复清除旧触控指针',cuePointer===null&&!pulling&&state===S.AIM);
+    } finally {cvs.setPointerCapture=nativeCapture;cancelCueGesture();}
+    const slider=$('powerRange'),sr=slider.getBoundingClientRect(),rp=document.documentElement.classList.contains('phone-portrait');
+    const pointFor=ratio=>{const sr=slider.getBoundingClientRect();return rp?{clientX:sr.left+sr.width/2,clientY:sr.top+8+(sr.height-16)*ratio}:{clientX:sr.left+8+(sr.width-16)*ratio,clientY:sr.top+sr.height/2};};
+    setPowerFromPointer(pointFor(0));check('力度条起点映射为最小力度',+slider.value===+slider.min);
+    setPowerFromPointer(pointFor(1));check('力度条终点映射为最大力度',+slider.value===+slider.max);
+    setPowerFromPointer(pointFor(.5));check('力度条中点在横屏和旋转后均正确',+slider.value===55&&$('powerValue').textContent==='55%');
+    showDlg('dlgDonate');const shotsBeforeHidden=shots;pull=100;shoot();
+    check('弹窗显示时不能从后台出杆',shots===shotsBeforeHidden&&state===S.AIM);
+    check('打赏页独占显示并保留返回入口',!$('dlgDonate').hidden&&['dlgMenu','dlgCollection','dlgHelp'].every(id=>$(id).hidden)&&inside($('btnDonateBack')));
+    await $('donateQr').decode();check('微信收款码正常解码',$('donateQr').naturalWidth===548);
+    $('btnDonateBack').click();check('打赏页面返回俱乐部',!$('dlgMenu').hidden&&$('dlgDonate').hidden);
     return {passed:results.length,results};
   } finally {
     matchEpoch++;Object.assign(PROFILE,profile);localStorage.clear();Object.entries(storage).forEach(([k,v])=>localStorage.setItem(k,v));PROGRESS=readStore('milkyPool.progress',null);VS_RECORD=readStore('milkyPool.vs',{w:0,l:0});startPractice(0);

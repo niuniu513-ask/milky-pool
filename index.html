@@ -279,6 +279,7 @@
   .donate-copy .btn { text-align:center; text-decoration:none; }
   .donate-recipient { font-size:12px; text-align:center; margin-top:8px; color:#896927; }
   .club-links { display:flex; gap:6px; }.club-links .btn { flex:1; font-size:12px; padding-left:4px; padding-right:4px; }
+  #powerValue { display:inline-block; min-width:4ch; font-variant-numeric:tabular-nums; }
   html.phone #dlgDonate { width:min(calc(var(--view-w) - 48px),650px); padding:12px 18px; }
   html.phone .donate-layout { grid-template-columns:minmax(150px,210px) 1fr; gap:18px; margin-top:8px; }
   html.phone #dlgDonate h2 { margin:0; font-size:18px; }
@@ -640,7 +641,7 @@ function drawPlacement() {
   ctx.strokeStyle=valid?'#5c9c75':'#c65c55';ctx.lineWidth=2.5;ctx.setLineDash([4,3]);ctx.beginPath();ctx.arc(p.x,p.y,BALL_R+7,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);
   ctx.font='800 16px "Microsoft YaHei",sans-serif';ctx.textAlign='center';ctx.fillStyle=valid?'#426c49':'#a83b38';ctx.fillText(valid?'点此放白球':'这里放不下',clamp(p.x,FELT.x+60,FELT.x+FELT.w-60),clamp(p.y+BALL_R+32,FELT.y+30,FELT.y+FELT.h-8));ctx.restore();
 }
-function resetShot() { clearTimeout(toastTimer);$('toast').classList.remove('visible');freeCue=false;placementPreview=null; pulling=false;pull=0;spin={x:0,y:0};spinYLeft=0;firstHit=null;firstContact=false;shotPotted=0;shotRail=false;strikeT=0;aim={dx:1,dy:0};spinDot.style.left='50%';spinDot.style.top='50%';danmaku=[];floats=[];rings=[];sinkAnims=[];rescueFrogs=[]; }
+function resetShot() { cancelCueGesture();clearTimeout(toastTimer);$('toast').classList.remove('visible');freeCue=false;placementPreview=null; pulling=false;pull=0;spin={x:0,y:0};spinYLeft=0;firstHit=null;firstContact=false;shotPotted=0;shotRail=false;strikeT=0;aim={dx:1,dy:0};spinDot.style.left='50%';spinDot.style.top='50%';danmaku=[];floats=[];rings=[];sinkAnims=[];rescueFrogs=[]; }
 function startPractice(preset) {
   matchEpoch++; mode='practice'; VS=null; practicePreset=+preset; placingPractice=false; $("btnPlace").textContent="自由摆母球"; score=0;shots=0;stage=1;streak=0;rescued=0; resetShot();
   const layouts=[[[450,190]],[[500,230],[630,350]],[[500,285]],[[440,170],[560,230],[690,160],[420,350],[600,390],[730,330]]];
@@ -984,7 +985,7 @@ function castGuide(px, py, dx, dy) {
 }
 
 function shoot() {
-  if(state!==S.AIM || !cue || cue.potted || isPlayerPlacement()) return;
+  if(state!==S.AIM || !cue || cue.potted || isPlayerPlacement() || !$('overlay').classList.contains('hidden')) return;
   const speed = 280 + (pull / 190) * 1250;
   cuePreDir = { x: aim.dx, y: aim.dy };
   spinYLeft = spin.y;
@@ -999,12 +1000,18 @@ function shoot() {
 }
 
 /* ---------------- 输入 ---------------- */
+let cuePointer=null;
+function cancelCueGesture() { cuePointer=null;pulling=false;pull=0; }
+addEventListener('resize',cancelCueGesture);
+addEventListener('blur',cancelCueGesture);
+if(window.visualViewport) visualViewport.addEventListener('resize',cancelCueGesture);
 function canvasPos(e) {
   const r = cvs.getBoundingClientRect();
   if(document.documentElement.classList.contains("phone-portrait")) return {x:(e.clientY-r.top)/r.height*W,y:(r.right-e.clientX)/r.width*H};
   return { x: (e.clientX - r.left) / r.width * W, y: (e.clientY - r.top) / r.height * H };
 }
 cvs.addEventListener("pointermove", e => {
+  if((e.pointerType==='touch'&&e.isPrimary===false) || (cuePointer!==null && e.pointerId!==cuePointer)) return;
   const p = canvasPos(e);
   if(isPlayerPlacement()){placementPreview=p;return;}
   if (state !== S.AIM || !cue || cue.potted || placingPractice || (mode==="versus" && (!VS || VS.turn!==1 || VS.ballInHand))) return;
@@ -1026,6 +1033,7 @@ cvs.addEventListener("pointermove", e => {
   }
 });
 cvs.addEventListener("pointerdown", e => {
+  if((e.pointerType==='touch'&&e.isPrimary===false) || cuePointer!==null || (e.pointerType==='mouse' && e.button!==0)) return;
   audio();
   if (state!==S.AIM) return;
   if(isPlayerPlacement()) {
@@ -1037,17 +1045,20 @@ cvs.addEventListener("pointerdown", e => {
   const d=dist(downPt.x,downPt.y,cue.x,cue.y);
   if(d>4){aim.dx=(downPt.x-cue.x)/d;aim.dy=(downPt.y-cue.y)/d;}
   downAim={...aim};downPull = pull;
+  cuePointer=e.pointerId;
   pulling = true;
   cvs.setPointerCapture(e.pointerId);
 });
-cvs.addEventListener("pointerup", () => {
+cvs.addEventListener("pointerup", e => {
+  if(e.pointerId!==cuePointer) return;
+  cuePointer=null;
   if (state !== S.AIM || !pulling) { pulling = false; pull = 0; return; }
   pulling = false;
   if (pull > 16) shoot(); else pull = 0;
 });
 
-cvs.addEventListener("pointercancel",()=>{pulling=false;pull=0;});
-cvs.addEventListener("lostpointercapture",()=>{if(pulling){pulling=false;pull=0;}});
+cvs.addEventListener("pointercancel",e=>{if(cuePointer===null||e.pointerId===cuePointer)cancelCueGesture();});
+cvs.addEventListener("lostpointercapture",e=>{if(cuePointer===null||e.pointerId===cuePointer)cancelCueGesture();});
 /* 加塞盘 */
 const spinPad = $("spinPad"), spinDot = $("spinDot"), spinTip = $("spinTip");
 let spinDrag = false;
@@ -1636,6 +1647,7 @@ function shade(hex, k) {
 
 /* ---------------- 弹窗 & 菜单 ---------------- */
 function showDlg(id) {
+  cancelCueGesture();
   ["dlgMenu", "dlgPause", "dlgLevel", "dlgOver", "dlgVs", "dlgCollection", "dlgHelp", "dlgDonate"].forEach(d => $(d).hidden = (d !== id));
   $("overlay").classList.toggle("hidden", !id);
   const inGame = state === S.AIM || state === S.ROLL;
@@ -1732,7 +1744,12 @@ const welcome=document.createElement('img');welcome.id='welcomeFace';welcome.alt
 setMood('welcomeFace','wave');setMood('coachFace','idle');
 reduceMotion.addEventListener('change',()=>{document.querySelectorAll('img[data-mood]').forEach(im=>{const mood=im.dataset.mood;delete im.dataset.mood;setMood(im.id,mood);});});
 $("btnFineLeft").onclick=()=>fineAim(-.009);$("btnFineRight").onclick=()=>fineAim(.009);
-$("btnFullscreen").onclick=async()=>{try{if(!document.fullscreenElement)await document.documentElement.requestFullscreen();if(screen.orientation?.lock)await screen.orientation.lock("landscape");}catch(e){toast("请横持手机；当前界面已按横屏显示");}fitScale();};
+$("btnFullscreen").setAttribute('aria-label','进入或退出全屏横屏');
+$("btnFullscreen").onclick=async()=>{try{
+  if(document.fullscreenElement){await document.exitFullscreen();screen.orientation?.unlock?.();}
+  else {if(document.documentElement.requestFullscreen)await document.documentElement.requestFullscreen();if(screen.orientation?.lock)await screen.orientation.lock('landscape');else toast('当前界面已按横屏显示');}
+}catch(e){toast('当前界面已按横屏显示，可继续游玩');}fitScale();};
+document.addEventListener('fullscreenchange',()=>{cancelCueGesture();fitScale();$('btnFullscreen').setAttribute('aria-pressed',String(!!document.fullscreenElement));});
 $("btnPractice").onclick=()=>{audio();startPractice($("practicePreset").value);};
 $("btnCollection").onclick=()=>{refreshCollection();showDlg('dlgCollection');};
 $("btnCollectionBack").onclick=()=>showDlg('dlgMenu');
@@ -1742,6 +1759,23 @@ $("btnBackClub").onclick=()=>{matchEpoch++;mode='levels';VS=null;state=S.MENU;sh
 $("btnGuide").onclick=()=>{PROFILE.guide=!PROFILE.guide;saveClub();};
 $("btnSound").onclick=()=>{PROFILE.sound=!PROFILE.sound;saveClub();if(PROFILE.sound)audio();};
 $("powerRange").oninput=()=>$("powerValue").textContent=$("powerRange").value+'%';
+// 原生 range 在旋转后的页面中仍按屏幕横轴处理拖动，改用控件本地横轴。
+let powerPointer=null;
+function setPowerFromPointer(e) {
+  const input=$('powerRange'),r=input.getBoundingClientRect();
+  const rotated=document.documentElement.classList.contains('phone-portrait');
+  const length=rotated?r.height:r.width,position=rotated?e.clientY-r.top:e.clientX-r.left;
+  const ratio=clamp((position-8)/Math.max(1,length-16),0,1);
+  input.value=Math.round(+input.min+ratio*(+input.max-+input.min));input.oninput();
+}
+$('powerRange').addEventListener('pointerdown',e=>{
+  if((e.pointerType==='touch'&&e.isPrimary===false)||powerPointer!==null||$('powerRange').disabled||(e.pointerType==='mouse'&&e.button!==0))return;
+  e.preventDefault();cancelCueGesture();powerPointer=e.pointerId;$('powerRange').focus({preventScroll:true});
+  $('powerRange').setPointerCapture(e.pointerId);setPowerFromPointer(e);
+});
+$('powerRange').addEventListener('pointermove',e=>{if(e.pointerId===powerPointer){e.preventDefault();if(!$('powerRange').disabled)setPowerFromPointer(e);}});
+['pointerup','pointercancel','lostpointercapture'].forEach(type=>$('powerRange').addEventListener(type,e=>{if(e.pointerId===powerPointer)powerPointer=null;}));
+addEventListener('resize',()=>{powerPointer=null;});
 $("btnShoot").onclick=()=>{if($("btnShoot").disabled)return;audio();pull=+$("powerRange").value/100*190;shoot();};
 $("btnPlace").onclick=()=>{if(state!==S.AIM)return;placingPractice=!placingPractice;$("btnPlace").textContent=placingPractice?'取消摆球':'自由摆母球';};
 $("helpGuide").onclick=()=>{PROFILE.guide=!PROFILE.guide;saveClub();$("helpGuide").textContent="瞄准辅助："+(PROFILE.guide?"开":"关");};
